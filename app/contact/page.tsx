@@ -3,9 +3,9 @@ import ContactForm from "@/components/contact/ContactForm";
 import MapEmbed from "@/components/contact/MapEmbed";
 
 export const metadata = {
-  title: "Contact | Rosehill Design Build",
+  title: "Contact | Rose Hill Design Build",
   description:
-    "Get in touch with Rosehill Design Build for your next luxury retail, commercial, or residential project.",
+    "Get in touch with Rose Hill Design Build for your next luxury retail, commercial, or residential project across North America.",
 };
 
 export default function ContactPage() {

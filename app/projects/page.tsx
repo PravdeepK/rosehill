@@ -3,9 +3,9 @@ import ProjectGrid from "@/components/projects/ProjectGrid";
 import SectionLabel from "@/components/ui/SectionLabel";
 
 export const metadata = {
-  title: "Projects | Rosehill Design Build",
+  title: "Projects | Rose Hill Design Build",
   description:
-    "Explore our portfolio of luxury retail, commercial, and residential design-build projects across the Greater Toronto Area.",
+    "Explore our portfolio of luxury retail, commercial, and residential design-build projects across North America.",
 };
 
 export default function ProjectsPage() {

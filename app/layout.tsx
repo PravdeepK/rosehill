@@ -11,9 +11,9 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Rosehill Design Build | Leaders in Luxury Retail",
+  title: "Rose Hill Design Build | Leaders in Luxury Retail",
   description:
-    "Rosehill Design Build delivers high-end design-build services specializing in luxury retail, commercial, and residential projects across the Greater Toronto Area.",
+    "Rose Hill Design Build delivers high-end design-build services specializing in luxury retail, commercial, and residential projects across North America.",
   icons: {
     icon: "/company-logos/rosehill-cropped.svg",
   },

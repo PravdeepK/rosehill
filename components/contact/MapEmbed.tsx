@@ -9,7 +9,7 @@ export default function MapEmbed() {
         allowFullScreen
         loading="lazy"
         referrerPolicy="no-referrer-when-downgrade"
-        title="Rosehill Design Build Location"
+        title="Rose Hill Design Build Location"
       />
     </div>
   );

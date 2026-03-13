@@ -13,7 +13,7 @@ export default function Advantage() {
         transition={{ duration: 0.7 }}
         className="text-center"
       >
-        <SectionLabel>The Rosehill Advantage</SectionLabel>
+        <SectionLabel>The Rose Hill Advantage</SectionLabel>
         <p className="text-xl md:text-2xl lg:text-3xl font-light leading-relaxed text-dark mt-6">
           We deliver high-end products, professionally skilled trades, and
           cutting-edge building practices.
@@ -34,7 +34,9 @@ export default function Advantage() {
           </div>
           <div className="w-px h-12 bg-warm-grey" />
           <div className="text-center">
-            <p className="text-3xl md:text-4xl font-light text-gold">GTA</p>
+            <p className="text-3xl md:text-4xl font-light text-gold">
+              North America
+            </p>
             <p className="text-[10px] md:text-xs uppercase tracking-widest text-medium-grey mt-2">
               Service Area
             </p>

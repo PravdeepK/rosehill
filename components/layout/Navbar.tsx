@@ -41,7 +41,7 @@ export default function Navbar() {
         <Link href="/" className="flex items-center gap-2.5">
           <Image
             src="/company-logos/rosehill-cropped.svg"
-            alt="Rosehill"
+            alt="Rose Hill"
             width={32}
             height={40}
             className={`transition-all duration-300 ${
@@ -53,7 +53,7 @@ export default function Navbar() {
               isTransparent ? "text-white" : "text-dark"
             }`}
           >
-            Rosehill
+            Rose Hill
           </span>
         </Link>
 

@@ -9,7 +9,7 @@ export default function Footer() {
           <div>
             <Image
               src="/company-logos/rosehill-full.svg"
-              alt="Rosehill Design Build"
+              alt="Rose Hill Design Build"
               width={200}
               height={55}
               className="w-[180px] h-auto brightness-0 invert mb-4"
@@ -76,7 +76,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white/10 mt-12 pt-8 text-center text-xs text-medium-grey">
-          &copy; 2025 Rosehill Design Build. All rights reserved.
+          &copy; 2025 Rose Hill Design Build. All rights reserved.
         </div>
       </div>
     </footer>

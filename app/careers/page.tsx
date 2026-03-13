@@ -23,10 +23,10 @@ export default function CareersPage() {
         >
           <SectionLabel>Careers</SectionLabel>
           <h1 className="text-3xl md:text-4xl font-light mt-4 mb-6">
-            Join Rosehill
+            Join Rose Hill
           </h1>
           <p className="text-medium-grey leading-relaxed mb-12">
-            Rosehill is always looking to expand its local reach. Subcontractors
+            Rose Hill is always looking to expand its local reach. Subcontractors
             and tradespeople interested in working with us should fill out the
             pre-qualification form below.
           </p>
