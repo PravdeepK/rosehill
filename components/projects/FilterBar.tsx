@@ -20,7 +20,7 @@ export default function FilterBar({ active, onChange }: FilterBarProps) {
         <button
           key={cat}
           onClick={() => onChange(cat)}
-          className={`text-xs uppercase tracking-widest px-4 py-2 border transition-colors duration-300 cursor-pointer ${
+          className={`text-xs uppercase tracking-widest px-4 py-3 border transition-colors duration-300 cursor-pointer ${
             active === cat
               ? "border-gold text-gold"
               : "border-warm-grey text-medium-grey hover:border-gold hover:text-gold"

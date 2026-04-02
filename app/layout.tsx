@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   description:
     "Rose Hill Design Build delivers high-end design-build services specializing in luxury retail, commercial, and residential projects across North America.",
   icons: {
-    icon: "/company-logos/rosehill-cropped.svg",
+    icon: "/company-logos/rose-hill-cropped.svg",
   },
 };
 

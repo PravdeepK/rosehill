@@ -61,29 +61,31 @@ export default function ProjectCarousel() {
 
       <button
         onClick={scrollPrev}
-        className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors text-white cursor-pointer"
+        className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors text-white cursor-pointer"
         aria-label="Previous slide"
       >
         &#8592;
       </button>
       <button
         onClick={scrollNext}
-        className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors text-white cursor-pointer"
+        className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors text-white cursor-pointer"
         aria-label="Next slide"
       >
         &#8594;
       </button>
 
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1">
         {projects.map((_, i) => (
           <button
             key={i}
-            className={`w-2 h-2 rounded-full transition-colors cursor-pointer ${
-              i === selectedIndex ? "bg-gold" : "bg-white/40"
-            }`}
+            className={`w-6 h-6 flex items-center justify-center cursor-pointer`}
             onClick={() => emblaApi?.scrollTo(i)}
             aria-label={`Go to slide ${i + 1}`}
-          />
+          >
+            <span className={`w-2 h-2 rounded-full transition-colors ${
+              i === selectedIndex ? "bg-gold" : "bg-white/40"
+            }`} />
+          </button>
         ))}
       </div>
     </div>

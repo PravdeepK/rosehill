@@ -8,6 +8,8 @@ const nextConfig: NextConfig = {
         hostname: "images.unsplash.com",
       },
     ],
+    // LogoWall uses ?v=mtime in dev for cache busting; omit search so query strings are allowed.
+    localPatterns: [{ pathname: "/logos/**" }],
   },
 };
 

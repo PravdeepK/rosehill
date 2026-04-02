@@ -40,7 +40,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-6 lg:px-8 flex items-center justify-between h-20">
         <Link href="/" className="flex items-center gap-2.5">
           <Image
-            src="/company-logos/rosehill-cropped.svg"
+            src="/company-logos/rose-hill-cropped.svg"
             alt="Rose Hill"
             width={32}
             height={40}
@@ -73,23 +73,23 @@ export default function Navbar() {
 
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="md:hidden relative w-6 h-5 flex flex-col justify-between"
+          className="md:hidden relative w-12 h-12 flex flex-col items-center justify-center gap-[5px] -mr-3"
           aria-label="Toggle menu"
         >
           <span
-            className={`block w-full h-0.5 transition-all duration-300 origin-center ${
+            className={`block w-6 h-0.5 transition-all duration-300 origin-center ${
               isTransparent ? "bg-white" : "bg-dark"
-            } ${mobileOpen ? "rotate-45 translate-y-[9px]" : ""}`}
+            } ${mobileOpen ? "rotate-45 translate-y-[7px]" : ""}`}
           />
           <span
-            className={`block w-full h-0.5 transition-all duration-300 ${
+            className={`block w-6 h-0.5 transition-all duration-300 ${
               isTransparent ? "bg-white" : "bg-dark"
             } ${mobileOpen ? "opacity-0" : ""}`}
           />
           <span
-            className={`block w-full h-0.5 transition-all duration-300 origin-center ${
+            className={`block w-6 h-0.5 transition-all duration-300 origin-center ${
               isTransparent ? "bg-white" : "bg-dark"
-            } ${mobileOpen ? "-rotate-45 -translate-y-[9px]" : ""}`}
+            } ${mobileOpen ? "-rotate-45 -translate-y-[7px]" : ""}`}
           />
         </button>
       </div>
@@ -99,12 +99,12 @@ export default function Navbar() {
           mobileOpen ? "max-h-60" : "max-h-0"
         }`}
       >
-        <div className="px-6 py-4 flex flex-col gap-4 border-t border-warm-grey">
+        <div className="px-6 py-2 flex flex-col border-t border-warm-grey">
           {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className={`text-sm uppercase tracking-widest text-dark hover:text-gold transition-colors ${
+              className={`py-3 text-sm uppercase tracking-widest text-dark hover:text-gold transition-colors ${
                 pathname === link.href ? "text-gold" : ""
               }`}
               onClick={() => setMobileOpen(false)}

@@ -27,7 +27,7 @@ export default function Services() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.08 }}
-              className={`group p-8 bg-warm-white border border-warm-grey hover:border-gold transition-colors duration-300 ${
+              className={`group p-6 md:p-8 bg-warm-white border border-warm-grey hover:border-gold transition-colors duration-300 ${
                 service.highlight ? "md:col-span-2 lg:col-span-2" : ""
               }`}
             >
