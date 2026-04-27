@@ -5,10 +5,41 @@ import Button from "@/components/ui/Button";
 
 export default function ContactForm() {
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSubmitted(true);
+    setError(null);
+    setLoading(true);
+
+    const form = e.currentTarget;
+    const data = {
+      name: (form.elements.namedItem("name") as HTMLInputElement).value,
+      email: (form.elements.namedItem("email") as HTMLInputElement).value,
+      phone: (form.elements.namedItem("phone") as HTMLInputElement).value,
+      "project-type": (form.elements.namedItem("project-type") as HTMLSelectElement).value,
+      message: (form.elements.namedItem("message") as HTMLTextAreaElement).value,
+      website: (form.elements.namedItem("website") as HTMLInputElement).value,
+    };
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        setError(json.error ?? "Something went wrong. Please try again.");
+      } else {
+        setSubmitted(true);
+      }
+    } catch {
+      setError("Network error. Please check your connection and try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (submitted) {
@@ -24,6 +55,16 @@ export default function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Honeypot */}
+      <input
+        name="website"
+        type="text"
+        style={{ display: "none" }}
+        tabIndex={-1}
+        aria-hidden="true"
+        autoComplete="off"
+      />
+
       <div>
         <label
           htmlFor="name"
@@ -110,8 +151,14 @@ export default function ContactForm() {
         />
       </div>
 
+      {error && (
+        <p className="text-sm" style={{ color: "#b8963e" }}>
+          {error}
+        </p>
+      )}
+
       <Button type="submit" variant="primary">
-        Send Message
+        {loading ? "Sending…" : "Send Message"}
       </Button>
     </form>
   );

@@ -7,10 +7,30 @@ import Button from "@/components/ui/Button";
 
 export default function CareersPage() {
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSubmitted(true);
+    setError(null);
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/careers", {
+        method: "POST",
+        body: new FormData(e.currentTarget),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        setError(json.error ?? "Something went wrong. Please try again.");
+      } else {
+        setSubmitted(true);
+      }
+    } catch {
+      setError("Network error. Please check your connection and try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -53,6 +73,16 @@ export default function CareersPage() {
             onSubmit={handleSubmit}
             className="space-y-6"
           >
+            {/* Honeypot */}
+            <input
+              name="website"
+              type="text"
+              style={{ display: "none" }}
+              tabIndex={-1}
+              aria-hidden="true"
+              autoComplete="off"
+            />
+
             <div>
               <label
                 htmlFor="name"
@@ -120,6 +150,59 @@ export default function CareersPage() {
 
             <div>
               <label
+                htmlFor="region"
+                className="block text-xs uppercase tracking-widest text-medium-grey mb-2"
+              >
+                Region
+              </label>
+              <select
+                id="region"
+                name="region"
+                required
+                className="w-full border border-warm-grey bg-transparent px-4 py-3 text-sm focus:border-gold focus:outline-none transition-colors"
+              >
+                <option value="">Select a region</option>
+                <option value="Canada">Canada</option>
+                <option value="United States">United States</option>
+              </select>
+            </div>
+
+            <div>
+              <label
+                htmlFor="resume"
+                className="block text-xs uppercase tracking-widest text-medium-grey mb-2"
+              >
+                Resume <span className="normal-case tracking-normal">(PDF or Word, max 10 MB)</span>
+              </label>
+              <input
+                id="resume"
+                name="resume"
+                type="file"
+                required
+                accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                className="w-full border border-warm-grey bg-transparent px-4 py-3 text-sm focus:border-gold focus:outline-none transition-colors file:mr-4 file:border-0 file:bg-transparent file:text-sm file:uppercase file:tracking-widest file:text-medium-grey file:cursor-pointer"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="coverLetter"
+                className="block text-xs uppercase tracking-widest text-medium-grey mb-2"
+              >
+                Cover Letter{" "}
+                <span className="normal-case tracking-normal">(optional — PDF or Word, max 10 MB)</span>
+              </label>
+              <input
+                id="coverLetter"
+                name="coverLetter"
+                type="file"
+                accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                className="w-full border border-warm-grey bg-transparent px-4 py-3 text-sm focus:border-gold focus:outline-none transition-colors file:mr-4 file:border-0 file:bg-transparent file:text-sm file:uppercase file:tracking-widest file:text-medium-grey file:cursor-pointer"
+              />
+            </div>
+
+            <div>
+              <label
                 htmlFor="message"
                 className="block text-xs uppercase tracking-widest text-medium-grey mb-2"
               >
@@ -133,8 +216,14 @@ export default function CareersPage() {
               />
             </div>
 
+            {error && (
+              <p className="text-sm" style={{ color: "#b8963e" }}>
+                {error}
+              </p>
+            )}
+
             <Button type="submit" variant="primary">
-              Submit Application
+              {loading ? "Sending…" : "Submit Application"}
             </Button>
           </motion.form>
         )}
