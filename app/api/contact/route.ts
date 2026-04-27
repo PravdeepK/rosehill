@@ -7,7 +7,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
-  limiter: Ratelimit.slidingWindow(3, "1 h"),
+  limiter: Ratelimit.slidingWindow(20, "1 h"),
 });
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Message contains too many URLs." }, { status: 400 });
   }
 
-  await resend.emails.send({
+  const { data, error } = await resend.emails.send({
     from: "Rose Hill <noreply@rosehilldesignbuild.com>",
     to: "angelo@rosehilldesignbuild.com",
     replyTo: email,
@@ -46,5 +46,11 @@ export async function POST(req: NextRequest) {
     text: `Name: ${name}\nEmail: ${email}\nPhone: ${phone || "—"}\nProject Type: ${projectType}\n\n${message}`,
   });
 
+  if (error) {
+    console.error("[contact] Resend error:", error);
+    return NextResponse.json({ error: "Failed to send message. Please try again." }, { status: 500 });
+  }
+
+  console.log("[contact] Email sent:", data?.id);
   return NextResponse.json({ success: true });
 }
