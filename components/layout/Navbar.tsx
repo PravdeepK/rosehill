@@ -38,23 +38,16 @@ export default function Navbar() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-8 flex items-center justify-between h-20">
-        <Link href="/" className="flex items-center gap-2.5">
+        <Link href="/" className="flex items-center">
           <Image
-            src="/company-logos/rose-hill-cropped.svg"
-            alt="Rose Hill"
-            width={32}
-            height={40}
-            className={`transition-all duration-300 ${
+            src="/company-logos/rose-hill-full.svg"
+            alt="Rose Hill Design Build"
+            width={160}
+            height={44}
+            className={`h-auto transition-all duration-300 ${
               isTransparent ? "brightness-0 invert" : ""
             }`}
           />
-          <span
-            className={`text-xl font-semibold tracking-wide uppercase transition-colors ${
-              isTransparent ? "text-white" : "text-dark"
-            }`}
-          >
-            Rose Hill
-          </span>
         </Link>
 
         <div className="hidden md:flex items-center gap-8">

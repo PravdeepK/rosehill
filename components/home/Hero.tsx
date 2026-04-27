@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { motion } from "framer-motion";
 
 export default function Hero() {
@@ -21,7 +20,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-xs md:text-sm uppercase tracking-[0.3em] mb-4 text-white/80"
+          className="text-sm md:text-base uppercase tracking-[0.3em] mb-4 text-white/80"
         >
           Rose Hill Design Build
         </motion.p>
@@ -29,23 +28,20 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="text-4xl md:text-6xl lg:text-7xl font-light tracking-tight"
+          className="text-5xl md:text-7xl lg:text-8xl font-light tracking-tight"
         >
-          Leaders in Luxury Retail
+          Leaders in Luxury
         </motion.h1>
-        <motion.div
+        <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="mt-8"
+          transition={{ duration: 0.8, delay: 0.5 }}
+          className="mt-3 flex items-center gap-3 text-base md:text-lg uppercase tracking-[0.3em] text-white/80"
         >
-          <Link
-            href="/projects"
-            className="inline-block border border-white/60 px-8 py-3 text-sm uppercase tracking-widest hover:bg-white hover:text-dark transition-all duration-300"
-          >
-            View Our Work
-          </Link>
-        </motion.div>
+          <span>CAN</span>
+          <span className="block w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-gold flex-shrink-0" />
+          <span>USA</span>
+        </motion.p>
       </div>
     </section>
   );

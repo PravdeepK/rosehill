@@ -17,7 +17,7 @@ export default function Footer() {
             <p className="text-warm-grey text-sm leading-relaxed">
               Leaders in Luxury Retail.
               <br />
-              Design-build excellence across the Greater Toronto Area.
+              Design-build excellence across North America.
             </p>
           </div>
 
