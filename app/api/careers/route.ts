@@ -68,8 +68,8 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  await resend.emails.send({
-    from: "Rose Hill <onboarding@resend.dev>",
+  const { data, error } = await resend.emails.send({
+    from: "Rose Hill <noreply@rosehilldesignbuild.com>",
     to: "adam@rosehilldesignbuild.com",
     replyTo: email,
     subject: `Subcontractor Application (${region}) — ${trade}`,
@@ -77,5 +77,11 @@ export async function POST(req: NextRequest) {
     attachments,
   });
 
+  if (error) {
+    console.error("[careers] Resend error:", error);
+    return NextResponse.json({ error: "Failed to send application. Please try again." }, { status: 500 });
+  }
+
+  console.log("[careers] Email sent:", data?.id);
   return NextResponse.json({ success: true });
 }

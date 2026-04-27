@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
   }
 
   await resend.emails.send({
-    from: "Rose Hill <onboarding@resend.dev>",
+    from: "Rose Hill <noreply@rosehilldesignbuild.com>",
     to: "angelo@rosehilldesignbuild.com",
     replyTo: email,
     subject: `New Contact Inquiry — ${projectType}`,
