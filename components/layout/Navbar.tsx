@@ -6,7 +6,6 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 const links = [
-  { label: "Projects", href: "/projects" },
   { label: "Careers", href: "/careers" },
   { label: "Contact", href: "/contact" },
 ];
@@ -16,18 +15,35 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
 
-  const isOverlayPage = pathname === "/" || pathname === "/projects";
-  const isTransparent = isOverlayPage && !scrolled;
+  const isOverlayPage = pathname === "/";
+  // Force solid bar whenever mobile menu is open so the dropdown
+  // doesn't sit under a transparent strip.
+  const isTransparent = isOverlayPage && !scrolled && !mobileOpen;
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Lock body scroll while mobile menu is open. Also close the menu when
+  // the route changes (covers browser back/forward navigation while open).
   useEffect(() => {
-    setMobileOpen(false);
-  }, [pathname]);
+    if (!mobileOpen) return;
+    const original = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = original;
+    };
+  }, [mobileOpen]);
+
+  // Close menu when the route changes (derived-state pattern, see:
+  // https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes).
+  const [lastPath, setLastPath] = useState(pathname);
+  if (pathname !== lastPath) {
+    setLastPath(pathname);
+    if (mobileOpen) setMobileOpen(false);
+  }
 
   return (
     <nav
@@ -38,80 +54,92 @@ export default function Navbar() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-8 flex items-center justify-between h-20">
-        <Link href="/" className="flex items-center gap-2.5">
+        <Link
+          href="/"
+          className="flex items-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-4"
+          aria-label="Rose Hill Design Build — home"
+        >
           <Image
-            src="/company-logos/rosehill-cropped.svg"
-            alt="Rose Hill"
-            width={32}
-            height={40}
-            className={`transition-all duration-300 ${
+            src="/company-logos/rose-hill-full.svg"
+            alt="Rose Hill Design Build"
+            width={160}
+            height={44}
+            priority
+            className={`h-auto w-[140px] md:w-[160px] transition-all duration-300 ${
               isTransparent ? "brightness-0 invert" : ""
             }`}
           />
-          <span
-            className={`text-xl font-semibold tracking-wide uppercase transition-colors ${
-              isTransparent ? "text-white" : "text-dark"
-            }`}
-          >
-            Rose Hill
-          </span>
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`text-sm uppercase tracking-widest transition-colors hover:text-gold ${
-                isTransparent ? "text-white/90" : "text-dark"
-              } ${pathname === link.href ? "text-gold" : ""}`}
-            >
-              {link.label}
-            </Link>
-          ))}
+          {links.map((link) => {
+            const active = pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`text-sm uppercase tracking-widest transition-colors hover:text-gold focus-visible:text-gold focus-visible:outline-none ${
+                  active
+                    ? "text-gold"
+                    : isTransparent
+                      ? "text-white/90"
+                      : "text-dark"
+                }`}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
         </div>
 
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="md:hidden relative w-6 h-5 flex flex-col justify-between"
-          aria-label="Toggle menu"
+          className="md:hidden relative w-12 h-12 flex flex-col items-center justify-center gap-[5px] -mr-3 cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold rounded-sm"
+          aria-label={mobileOpen ? "Close menu" : "Open menu"}
+          aria-expanded={mobileOpen}
+          aria-controls="mobile-nav"
         >
           <span
-            className={`block w-full h-0.5 transition-all duration-300 origin-center ${
+            className={`block w-6 h-0.5 transition-all duration-300 origin-center ${
               isTransparent ? "bg-white" : "bg-dark"
-            } ${mobileOpen ? "rotate-45 translate-y-[9px]" : ""}`}
+            } ${mobileOpen ? "rotate-45 translate-y-[7px]" : ""}`}
           />
           <span
-            className={`block w-full h-0.5 transition-all duration-300 ${
+            className={`block w-6 h-0.5 transition-all duration-300 ${
               isTransparent ? "bg-white" : "bg-dark"
             } ${mobileOpen ? "opacity-0" : ""}`}
           />
           <span
-            className={`block w-full h-0.5 transition-all duration-300 origin-center ${
+            className={`block w-6 h-0.5 transition-all duration-300 origin-center ${
               isTransparent ? "bg-white" : "bg-dark"
-            } ${mobileOpen ? "-rotate-45 -translate-y-[9px]" : ""}`}
+            } ${mobileOpen ? "-rotate-45 -translate-y-[7px]" : ""}`}
           />
         </button>
       </div>
 
       <div
-        className={`md:hidden overflow-hidden transition-all duration-300 bg-warm-white ${
-          mobileOpen ? "max-h-60" : "max-h-0"
+        id="mobile-nav"
+        className={`md:hidden overflow-hidden transition-[max-height,opacity] duration-300 bg-warm-white ${
+          mobileOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
         }`}
+        aria-hidden={!mobileOpen}
       >
-        <div className="px-6 py-4 flex flex-col gap-4 border-t border-warm-grey">
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`text-sm uppercase tracking-widest text-dark hover:text-gold transition-colors ${
-                pathname === link.href ? "text-gold" : ""
-              }`}
-              onClick={() => setMobileOpen(false)}
-            >
-              {link.label}
-            </Link>
-          ))}
+        <div className="px-6 py-2 flex flex-col border-t border-warm-grey">
+          {links.map((link) => {
+            const active = pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`py-4 text-sm uppercase tracking-widest hover:text-gold transition-colors ${
+                  active ? "text-gold" : "text-dark"
+                }`}
+                onClick={() => setMobileOpen(false)}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
         </div>
       </div>
     </nav>

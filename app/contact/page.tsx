@@ -1,54 +1,90 @@
 import SectionLabel from "@/components/ui/SectionLabel";
 import ContactForm from "@/components/contact/ContactForm";
-import MapEmbed from "@/components/contact/MapEmbed";
 
 export const metadata = {
-  title: "Contact | Rose Hill Design Build",
+  title: "Contact",
   description:
     "Get in touch with Rose Hill Design Build for your next luxury retail, commercial, or residential project across North America.",
+  alternates: { canonical: "/contact" },
 };
 
 export default function ContactPage() {
   return (
-    <section className="pt-32 pb-24 px-6 lg:px-8">
+    <section className="pt-28 md:pt-32 pb-20 md:pb-24 px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
+        <div className="text-center mb-12 md:mb-16">
           <SectionLabel>Contact</SectionLabel>
           <h1 className="text-3xl md:text-4xl font-light mt-4 mb-4">
             Get In Touch
           </h1>
-          <p className="text-medium-grey max-w-xl mx-auto">
+          <p className="text-medium-grey max-w-xl mx-auto leading-relaxed">
             Ready to start your project? Reach out and one of our team will be
             in touch.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+        <div className="max-w-2xl mx-auto mb-16 md:mb-20">
           <ContactForm />
-          <div className="space-y-8">
-            <MapEmbed />
-            <div className="space-y-3 text-sm">
-              <p>
-                6790 Kitimat Road, Unit 7
-                <br />
-                Mississauga, ON L5N 5L9
-              </p>
-              <p>
-                <a
-                  href="tel:905-826-7673"
-                  className="hover:text-gold transition-colors"
-                >
-                  905-826-7673
-                </a>
-              </p>
-              <p>
-                <a
-                  href="mailto:info@rosehilldesignbuild.com"
-                  className="hover:text-gold transition-colors"
-                >
-                  info@rosehilldesignbuild.com
-                </a>
-              </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 mt-8 text-sm text-medium-grey">
+            <a
+              href="tel:905-826-7673"
+              className="hover:text-gold transition-colors"
+            >
+              905-826-7673
+            </a>
+            <span className="hidden sm:inline text-warm-grey">•</span>
+            <a
+              href="mailto:info@rosehilldesignbuild.com"
+              className="hover:text-gold transition-colors"
+            >
+              info@rosehilldesignbuild.com
+            </a>
+          </div>
+        </div>
+
+        <div className="border-t border-warm-grey pt-12 md:pt-16">
+          <div className="text-center mb-10">
+            <SectionLabel>Our Locations</SectionLabel>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
+            <div className="space-y-4">
+              <div className="w-full aspect-[16/10] md:aspect-video bg-warm-grey rounded-sm overflow-hidden">
+                <iframe
+                  src="https://maps.google.com/maps?q=6790+Kitimat+Road+Mississauga+ON+L5N+5L9&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Rose Hill Design Build — Canada"
+                />
+              </div>
+              <div className="text-sm space-y-1">
+                <p className="font-medium">Rose Hill Design Build</p>
+                <p className="text-medium-grey">6790 Kitimat Road, Unit 7</p>
+                <p className="text-medium-grey">Mississauga, ON L5N 5L9</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="w-full aspect-[16/10] md:aspect-video bg-warm-grey rounded-sm overflow-hidden">
+                <iframe
+                  src="https://maps.google.com/maps?q=16192+Coastal+Hwy+Lewes+DE+19958&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Rose Hill Design Build LLC — United States"
+                />
+              </div>
+              <div className="text-sm space-y-1">
+                <p className="font-medium">Rose Hill Design Build LLC</p>
+                <p className="text-medium-grey">16192 Coastal Hwy.</p>
+                <p className="text-medium-grey">Lewes, DE 19958</p>
+              </div>
             </div>
           </div>
         </div>
