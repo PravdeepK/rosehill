@@ -39,7 +39,7 @@ export default function Footer() {
               />
             </Link>
             <p className="text-warm-grey text-sm leading-relaxed">
-              Leaders in Luxury Retail.
+              Leaders in Luxury.
               <br />
               Design-build excellence across North America.
             </p>

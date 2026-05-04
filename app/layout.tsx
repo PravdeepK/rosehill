@@ -16,7 +16,7 @@ const SITE_URL = "https://rosehilldesignbuild.com";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Rose Hill Design Build | Leaders in Luxury Retail",
+    default: "Rose Hill Design Build | Leaders in Luxury",
     template: "%s | Rose Hill Design Build",
   },
   description:
@@ -29,13 +29,13 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: SITE_URL,
     siteName: "Rose Hill Design Build",
-    title: "Rose Hill Design Build | Leaders in Luxury Retail",
+    title: "Rose Hill Design Build | Leaders in Luxury",
     description:
       "High-end design-build services specializing in luxury retail, commercial, and residential projects across North America.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Rose Hill Design Build | Leaders in Luxury Retail",
+    title: "Rose Hill Design Build | Leaders in Luxury",
     description:
       "High-end design-build services specializing in luxury retail, commercial, and residential projects across North America.",
   },
