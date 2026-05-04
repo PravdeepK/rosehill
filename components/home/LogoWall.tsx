@@ -27,7 +27,7 @@ export default function LogoWall() {
   return (
     <section className="py-20 md:py-28 px-6 lg:px-8 bg-warm-grey">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-14 md:mb-16">
+        <div className="text-center mb-12 md:mb-16">
           <SectionLabel>Partners</SectionLabel>
           <h2 className="text-2xl md:text-3xl font-light mt-4 text-dark">
             Brands we&apos;ve worked with

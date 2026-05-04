@@ -36,30 +36,35 @@ export default function LogoWallClient({
     return () => clearInterval(id);
   }, []);
 
-  const tone =
-    "grayscale opacity-[0.88] hover:grayscale-0 hover:opacity-100 transition duration-300 drop-shadow-[0_0_0.65px_rgba(26,26,26,0.22)]";
-
   return (
-    <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-8 gap-y-12 md:gap-x-10 md:gap-y-14 list-none p-0 m-0 items-center justify-items-center">
+    <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-6 gap-y-8 sm:gap-x-8 sm:gap-y-10 md:gap-x-10 md:gap-y-12 list-none p-0 m-0 items-center justify-items-center">
       {items.map(({ name: file, v }) => {
         const base = `/logos/${encodeURIComponent(file)}`;
-        const src =
-          process.env.NODE_ENV === "development"
-            ? `${base}?v=${Math.floor(v)}`
-            : base;
+        // Always include the file mtime as a cache-buster so an updated
+        // logo asset shows up immediately even when browsers have cached
+        // the previous bytes under the same path.
+        const src = `${base}?v=${Math.floor(v)}`;
         const label = file.replace(/\.(png|svg)$/i, "").replace(/_/g, " ");
+        const maskUrl = `url("${src}")`;
         return (
           <li
             key={file}
-            className="w-full max-w-[200px] flex items-center justify-center"
+            className="w-full max-w-[180px] h-12 sm:h-14 flex items-center justify-center text-dark/75 hover:text-gold transition-colors duration-300"
           >
-            {/* eslint-disable-next-line @next/next/no-img-element -- trusted local assets from /public */}
-            <img
-              src={src}
-              alt={label}
-              className={`h-10 w-auto max-w-[160px] object-contain ${tone}`}
-              loading="lazy"
-              decoding="async"
+            <span
+              role="img"
+              aria-label={label}
+              className="block w-full h-full bg-current"
+              style={{
+                WebkitMaskImage: maskUrl,
+                maskImage: maskUrl,
+                WebkitMaskRepeat: "no-repeat",
+                maskRepeat: "no-repeat",
+                WebkitMaskPosition: "center",
+                maskPosition: "center",
+                WebkitMaskSize: "contain",
+                maskSize: "contain",
+              }}
             />
           </li>
         );

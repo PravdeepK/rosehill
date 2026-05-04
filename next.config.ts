@@ -9,7 +9,10 @@ const nextConfig: NextConfig = {
       },
     ],
     // LogoWall uses ?v=mtime in dev for cache busting; omit search so query strings are allowed.
-    localPatterns: [{ pathname: "/logos/**" }],
+    localPatterns: [
+      { pathname: "/logos/**" },
+      { pathname: "/images/**" },
+    ],
   },
 };
 

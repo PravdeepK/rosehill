@@ -1,19 +1,43 @@
 import Link from "next/link";
 import Image from "next/image";
 
+const navLinks = [
+  { label: "Careers", href: "/careers" },
+  { label: "Contact", href: "/contact" },
+];
+
+const offices = [
+  {
+    name: "Canada",
+    company: "Rose Hill Design Build",
+    lines: ["6790 Kitimat Road, Unit 7", "Mississauga, ON L5N 5L9"],
+  },
+  {
+    name: "United States",
+    company: "Rose Hill Design Build LLC",
+    lines: ["16192 Coastal Hwy.", "Lewes, DE 19958"],
+  },
+];
+
 export default function Footer() {
   return (
     <footer className="bg-dark text-warm-white">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
-          <div>
-            <Image
-              src="/company-logos/rose-hill-full.svg"
-              alt="Rose Hill Design Build"
-              width={200}
-              height={55}
-              className="w-[180px] h-auto brightness-0 invert mb-4"
-            />
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-14 md:py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12">
+          <div className="sm:col-span-2 lg:col-span-1">
+            <Link
+              href="/"
+              className="inline-block focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-4"
+              aria-label="Rose Hill Design Build — home"
+            >
+              <Image
+                src="/company-logos/rose-hill-full.svg"
+                alt="Rose Hill Design Build"
+                width={200}
+                height={55}
+                className="w-[160px] md:w-[180px] h-auto brightness-0 invert mb-4"
+              />
+            </Link>
             <p className="text-warm-grey text-sm leading-relaxed">
               Leaders in Luxury Retail.
               <br />
@@ -22,61 +46,56 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="text-xs uppercase tracking-widest text-gold mb-4">
+            <h4 className="text-xs uppercase tracking-widest text-warm-white/70 mb-4">
               Navigation
             </h4>
             <div className="flex flex-col gap-3">
-              {["Projects", "Careers", "Contact"].map((link) => (
+              {navLinks.map((link) => (
                 <Link
-                  key={link}
-                  href={`/${link.toLowerCase()}`}
+                  key={link.href}
+                  href={link.href}
                   className="text-sm text-warm-grey hover:text-gold transition-colors"
                 >
-                  {link}
+                  {link.label}
                 </Link>
               ))}
             </div>
           </div>
 
-          <div>
-            <h4 className="text-xs uppercase tracking-widest text-gold mb-4">
-              Contact
-            </h4>
-            <div className="flex flex-col gap-2 text-sm text-warm-grey">
-              <p>6790 Kitimat Road, Unit 7</p>
-              <p>Mississauga, ON L5N 5L9</p>
-              <a
-                href="tel:905-826-7673"
-                className="hover:text-gold transition-colors"
-              >
-                905-826-7673
-              </a>
-              <a
-                href="mailto:info@rosehilldesignbuild.com"
-                className="hover:text-gold transition-colors"
-              >
-                info@rosehilldesignbuild.com
-              </a>
+          {offices.map((office) => (
+            <div key={office.name}>
+              <h4 className="text-xs uppercase tracking-widest text-warm-white/70 mb-4">
+                {office.name}
+              </h4>
+              <div className="flex flex-col gap-1.5 text-sm text-warm-grey">
+                <p className="text-warm-white">{office.company}</p>
+                {office.lines.map((line) => (
+                  <p key={line}>{line}</p>
+                ))}
+              </div>
             </div>
-            <div className="flex gap-4 mt-4">
-              <a
-                href="#"
-                className="text-warm-grey hover:text-gold transition-colors text-sm"
-              >
-                Instagram
-              </a>
-              <a
-                href="#"
-                className="text-warm-grey hover:text-gold transition-colors text-sm"
-              >
-                LinkedIn
-              </a>
-            </div>
-          </div>
+          ))}
         </div>
 
-        <div className="border-t border-white/10 mt-12 pt-8 text-center text-xs text-medium-grey">
-          &copy; 2025 Rose Hill Design Build. All rights reserved.
+        <div className="mt-12 md:mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-xs text-medium-grey">
+          <p>
+            &copy; {new Date().getFullYear()} Rose Hill Design Build. All rights
+            reserved.
+          </p>
+          <div className="flex flex-wrap gap-x-5 gap-y-2 text-warm-grey">
+            <a
+              href="tel:905-826-7673"
+              className="hover:text-gold transition-colors"
+            >
+              905-826-7673
+            </a>
+            <a
+              href="mailto:info@rosehilldesignbuild.com"
+              className="hover:text-gold transition-colors"
+            >
+              info@rosehilldesignbuild.com
+            </a>
+          </div>
         </div>
       </div>
     </footer>

@@ -24,3 +24,13 @@ body {
   background-color: var(--color-gold);
   color: white;
 }
+
+/* Hide scrollbars while keeping scroll functionality (used for horizontal
+   filter strip on mobile). */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
