@@ -3,10 +3,23 @@
 import { motion } from "framer-motion";
 import SectionLabel from "@/components/ui/SectionLabel";
 
-const stats: Array<{ value: string; mobileValue?: string; label: string }> = [
+type Stat = {
+  value: string;
+  mobileValue?: string;
+  label: string;
+  /** Optional size override for long values that don't fit the default 4xl. */
+  valueClass?: string;
+};
+
+const stats: Stat[] = [
   { value: "30+", label: "Years Experience" },
   { value: "150+", label: "Projects Completed" },
-  { value: "North America", mobileValue: "N.A.", label: "Service Area" },
+  {
+    value: "North America",
+    mobileValue: "N.A.",
+    label: "Service Area",
+    valueClass: "md:text-2xl lg:text-3xl",
+  },
 ];
 
 export default function Advantage() {
@@ -30,17 +43,25 @@ export default function Advantage() {
               key={stat.label}
               className="text-center px-2 md:px-6 flex flex-col items-center"
             >
-              <p className="text-2xl md:text-4xl font-light text-gold leading-tight">
-                {stat.mobileValue ? (
-                  <>
-                    <span className="md:hidden">{stat.mobileValue}</span>
-                    <span className="hidden md:inline">{stat.value}</span>
-                  </>
-                ) : (
-                  stat.value
-                )}
-              </p>
-              <p className="text-[10px] md:text-xs uppercase tracking-widest text-medium-grey mt-2 leading-tight">
+              {/* Fixed-height, bottom-aligned row so all stat values share
+                  the same baseline regardless of font size. */}
+              <div className="h-8 md:h-12 flex items-end justify-center">
+                <p
+                  className={`text-2xl md:text-4xl font-light text-gold leading-none whitespace-nowrap ${
+                    stat.valueClass ?? ""
+                  }`}
+                >
+                  {stat.mobileValue ? (
+                    <>
+                      <span className="md:hidden">{stat.mobileValue}</span>
+                      <span className="hidden md:inline">{stat.value}</span>
+                    </>
+                  ) : (
+                    stat.value
+                  )}
+                </p>
+              </div>
+              <p className="text-[10px] md:text-xs uppercase tracking-widest text-medium-grey mt-3 leading-tight">
                 {stat.label}
               </p>
             </div>
