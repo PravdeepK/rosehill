@@ -8,7 +8,8 @@
     "start": "next start",
     "preview": "next build --webpack && next start",
     "lint": "eslint",
-    "optimize-images": "node scripts/optimize-images.mjs"
+    "optimize-images": "node scripts/optimize-images.mjs",
+    "gen-favicon": "node scripts/gen-favicon.mjs"
   },
   "browserslist": [
     "Chrome >= 100",
@@ -33,7 +34,9 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "sharp": "^0.34.5",
     "tailwindcss": "^4",
+    "to-ico": "^1.1.5",
     "typescript": "^5"
   }
 }
