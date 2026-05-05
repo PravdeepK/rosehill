@@ -1,23 +1,28 @@
 import type { MetadataRoute } from "next";
-
-const BASE = "https://rosehilldesignbuild.com";
+import { SITE_URL } from "@/lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
-      url: BASE,
+      url: SITE_URL,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 1,
     },
     {
-      url: `${BASE}/careers`,
+      url: `${SITE_URL}/projects`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
+    {
+      url: `${SITE_URL}/careers`,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.7,
     },
     {
-      url: `${BASE}/contact`,
+      url: `${SITE_URL}/contact`,
       lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 0.8,

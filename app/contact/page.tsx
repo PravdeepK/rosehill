@@ -4,7 +4,7 @@ import ContactForm from "@/components/contact/ContactForm";
 export const metadata = {
   title: "Contact",
   description:
-    "Get in touch with Rose Hill Design Build for your next luxury retail, commercial, or residential project across North America.",
+    "Contact Rose Hill Design Build about luxury retail, commercial, or residential design-build across North America.",
   alternates: { canonical: "/contact" },
 };
 

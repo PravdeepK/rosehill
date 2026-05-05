@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Careers",
   description:
-    "Join Rose Hill Design Build — subcontractors and tradespeople interested in luxury retail and commercial construction projects across North America.",
+    "Build your career with Rose Hill Design Build — luxury retail, commercial, and residential design-build projects across North America.",
   alternates: { canonical: "/careers" },
 };
 

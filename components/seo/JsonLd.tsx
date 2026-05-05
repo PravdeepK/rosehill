@@ -1,12 +1,13 @@
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
+
 const ORG_SCHEMA = {
   "@context": "https://schema.org",
   "@type": "GeneralContractor",
-  name: "Rose Hill Design Build",
-  url: "https://rosehilldesignbuild.com",
+  name: SITE_NAME,
+  url: SITE_URL,
   email: "info@rosehilldesignbuild.com",
   telephone: "+1-905-826-7673",
-  description:
-    "High-end design-build services specializing in luxury retail, commercial, and residential projects across North America.",
+  description: SITE_DESCRIPTION,
   areaServed: [
     { "@type": "Country", name: "Canada" },
     { "@type": "Country", name: "United States" },
