@@ -1,34 +1,23 @@
-"use client";
-
-import { motion } from "framer-motion";
 import SectionLabel from "@/components/ui/SectionLabel";
+import Reveal from "@/components/ui/Reveal";
 import { services } from "@/lib/data";
 
 export default function Services() {
   return (
     <section className="py-20 md:py-28 px-6 lg:px-8 bg-warm-grey">
       <div className="max-w-7xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12 md:mb-16"
-        >
+        <Reveal className="text-center mb-12 md:mb-16">
           <SectionLabel>Services</SectionLabel>
           <h2 className="text-3xl md:text-4xl font-light mt-4 text-dark">
             What We Do
           </h2>
-        </motion.div>
+        </Reveal>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {services.map((service, i) => (
-            <motion.div
+            <Reveal
               key={service.name}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: Math.min(i * 0.06, 0.3) }}
+              delay={Math.min(i * 60, 300)}
               className={`group relative p-6 md:p-8 bg-warm-white border border-transparent hover:border-gold transition-colors duration-300 ${
                 service.highlight
                   ? "sm:col-span-2 lg:col-span-2 lg:row-span-1 border-l-2 border-l-gold"
@@ -46,7 +35,7 @@ export default function Services() {
               <p className="text-sm text-medium-grey leading-relaxed">
                 {service.description}
               </p>
-            </motion.div>
+            </Reveal>
           ))}
         </div>
       </div>

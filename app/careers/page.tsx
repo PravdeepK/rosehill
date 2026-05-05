@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
 import SectionLabel from "@/components/ui/SectionLabel";
 import Button from "@/components/ui/Button";
 
@@ -42,11 +41,7 @@ export default function CareersPage() {
   return (
     <section className="pt-28 md:pt-32 pb-20 md:pb-24 px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
+        <div>
           <SectionLabel>Careers</SectionLabel>
           <h1 className="text-3xl md:text-4xl font-light mt-4 mb-5 md:mb-6">
             Join Rose Hill
@@ -56,26 +51,19 @@ export default function CareersPage() {
             Subcontractors and tradespeople interested in working with us should
             fill out the pre-qualification form below.
           </p>
-        </motion.div>
+        </div>
 
         {submitted ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-12"
-          >
+          <div className="text-center py-12">
             <p className="text-xl font-light">
               Thank you for your interest.
             </p>
             <p className="text-medium-grey mt-2">
               We will review your submission and be in touch.
             </p>
-          </motion.div>
+          </div>
         ) : (
-          <motion.form
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+          <form
             onSubmit={handleSubmit}
             className="space-y-5 md:space-y-6"
             noValidate
@@ -275,7 +263,7 @@ export default function CareersPage() {
             >
               {loading ? "Sending…" : "Submit Application"}
             </Button>
-          </motion.form>
+          </form>
         )}
       </div>
     </section>

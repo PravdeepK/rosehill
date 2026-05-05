@@ -65,6 +65,7 @@ export default function Navbar() {
             width={160}
             height={44}
             priority
+            fetchPriority="high"
             className={`h-auto w-[140px] md:w-[160px] transition-all duration-300 ${
               isTransparent ? "brightness-0 invert" : ""
             }`}

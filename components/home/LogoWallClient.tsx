@@ -44,7 +44,7 @@ export default function LogoWallClient({
         // logo asset shows up immediately even when browsers have cached
         // the previous bytes under the same path.
         const src = `${base}?v=${Math.floor(v)}`;
-        const label = file.replace(/\.(png|svg)$/i, "").replace(/_/g, " ");
+        const label = file.replace(/\.(webp|svg)$/i, "").replace(/_/g, " ");
         const maskUrl = `url("${src}")`;
         return (
           <li
