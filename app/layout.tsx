@@ -5,6 +5,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import JsonLd from "@/components/seo/JsonLd";
 import {
+  PAGE_TITLE_TAGLINE,
   SITE_DESCRIPTION,
   SITE_NAME,
   SITE_URL,
@@ -16,7 +17,7 @@ const dmSans = DM_Sans({
   weight: ["300", "400", "500", "700"],
 });
 
-const defaultTitle = `${SITE_NAME} | Leaders in Luxury Retail`;
+const defaultTitle = `Home | ${PAGE_TITLE_TAGLINE}`;
 
 const OG_IMAGE = {
   url: "/og-image.png",
@@ -30,7 +31,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
     default: defaultTitle,
-    template: `%s | ${SITE_NAME}`,
+    template: `%s | ${PAGE_TITLE_TAGLINE}`,
   },
   description: SITE_DESCRIPTION,
   icons: {
@@ -41,13 +42,11 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: SITE_URL,
     siteName: SITE_NAME,
-    title: defaultTitle,
     description: SITE_DESCRIPTION,
     images: [OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
-    title: defaultTitle,
     description: SITE_DESCRIPTION,
     images: [OG_IMAGE],
   },
