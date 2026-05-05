@@ -5,8 +5,8 @@ import LogoWall from "@/components/home/LogoWall";
 import Testimonials from "@/components/home/Testimonials";
 import CallToAction from "@/components/home/CallToAction";
 
-/** Read `public/logos` on each request so new assets show after refresh (no rebuild). */
-export const dynamic = "force-dynamic";
+/** Revalidate periodically so filesystem-driven logos refresh without per-request SSR. */
+export const revalidate = 3600;
 
 export default function Home() {
   return (

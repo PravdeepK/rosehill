@@ -1,19 +1,11 @@
-"use client";
-
 import Link from "next/link";
-import { motion } from "framer-motion";
 import SectionLabel from "@/components/ui/SectionLabel";
+import Reveal from "@/components/ui/Reveal";
 
 export default function CallToAction() {
   return (
     <section className="py-20 md:py-28 px-6 lg:px-8 bg-warm-white">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.7 }}
-        className="max-w-3xl mx-auto text-center"
-      >
+      <Reveal className="max-w-3xl mx-auto text-center">
         <SectionLabel>Start Your Project</SectionLabel>
         <h2 className="text-3xl md:text-4xl lg:text-5xl font-light mt-4 text-dark leading-tight">
           Let&apos;s build something <span className="text-gold">extraordinary</span>.
@@ -36,7 +28,7 @@ export default function CallToAction() {
             905-826-7673
           </a>
         </div>
-      </motion.div>
+      </Reveal>
     </section>
   );
 }

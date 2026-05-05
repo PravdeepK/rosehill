@@ -7,13 +7,20 @@
     "build": "next build --webpack",
     "start": "next start",
     "preview": "next build --webpack && next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "optimize-images": "node scripts/optimize-images.mjs"
   },
+  "browserslist": [
+    "Chrome >= 100",
+    "Edge >= 100",
+    "Firefox >= 100",
+    "Safari >= 15.4",
+    "iOS >= 15.4"
+  ],
   "dependencies": {
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.37.0",
     "embla-carousel-react": "^8.6.0",
-    "framer-motion": "^12.35.0",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",

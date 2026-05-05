@@ -46,9 +46,9 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="text-xs uppercase tracking-widest text-warm-white/70 mb-4">
+            <p className="text-xs uppercase tracking-widest text-warm-white/70 mb-4">
               Navigation
-            </h4>
+            </p>
             <div className="flex flex-col gap-3">
               {navLinks.map((link) => (
                 <Link
@@ -64,9 +64,9 @@ export default function Footer() {
 
           {offices.map((office) => (
             <div key={office.name}>
-              <h4 className="text-xs uppercase tracking-widest text-warm-white/70 mb-4">
+              <p className="text-xs uppercase tracking-widest text-warm-white/70 mb-4">
                 {office.name}
-              </h4>
+              </p>
               <div className="flex flex-col gap-1.5 text-sm text-warm-grey">
                 <p className="text-warm-white">{office.company}</p>
                 {office.lines.map((line) => (
@@ -77,7 +77,7 @@ export default function Footer() {
           ))}
         </div>
 
-        <div className="mt-12 md:mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-xs text-medium-grey">
+        <div className="mt-12 md:mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-xs text-warm-grey">
           <p>
             &copy; {new Date().getFullYear()} Rose Hill Design Build. All rights
             reserved.

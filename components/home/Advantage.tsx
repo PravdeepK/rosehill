@@ -1,7 +1,5 @@
-"use client";
-
-import { motion } from "framer-motion";
 import SectionLabel from "@/components/ui/SectionLabel";
+import Reveal from "@/components/ui/Reveal";
 
 type Stat = {
   value: string;
@@ -25,13 +23,7 @@ const stats: Stat[] = [
 export default function Advantage() {
   return (
     <section className="py-20 md:py-28 px-6 lg:px-8 max-w-5xl mx-auto">
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.7 }}
-        className="text-center"
-      >
+      <Reveal y={30} className="text-center">
         <SectionLabel>The Rose Hill Advantage</SectionLabel>
         <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-light leading-snug md:leading-relaxed text-dark mt-6 max-w-3xl mx-auto">
           We deliver high-end products, professionally skilled trades, and
@@ -67,7 +59,7 @@ export default function Advantage() {
             </div>
           ))}
         </div>
-      </motion.div>
+      </Reveal>
     </section>
   );
 }

@@ -27,13 +27,13 @@ export async function POST(req: NextRequest) {
   }
 
   const formData = await req.formData();
-  const name     = formData.get("name") as string;
-  const trade    = formData.get("trade") as string;
-  const phone    = formData.get("phone") as string;
-  const email    = formData.get("email") as string;
-  const region   = formData.get("region") as string;
-  const message  = formData.get("message") as string | null;
-  const website  = formData.get("website") as string | null;
+  const name = (formData.get("name") as string | null)?.trim() ?? "";
+  const trade = (formData.get("trade") as string | null)?.trim() ?? "";
+  const phone = (formData.get("phone") as string | null)?.trim() ?? "";
+  const email = (formData.get("email") as string | null)?.trim() ?? "";
+  const region = (formData.get("region") as string | null)?.trim() ?? "";
+  const message = (formData.get("message") as string | null)?.trim() ?? "";
+  const website = (formData.get("website") as string | null)?.trim() ?? "";
   const resume   = formData.get("resume") as File | null;
   const cover    = formData.get("coverLetter") as File | null;
 
@@ -42,10 +42,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true });
   }
 
+  if (!name || !trade || !phone || !region) {
+    return NextResponse.json({ error: "Name, trade, phone, and region are required." }, { status: 400 });
+  }
   if (!EMAIL_RE.test(email)) {
     return NextResponse.json({ error: "Invalid email address." }, { status: 400 });
   }
-  if (message && message.length > 2000) {
+  if (message.length > 2000) {
     return NextResponse.json({ error: "Message must be 2000 characters or fewer." }, { status: 400 });
   }
   if (message && (message.match(URL_RE) ?? []).length > 2) {
@@ -73,7 +76,7 @@ export async function POST(req: NextRequest) {
     to: "adam@rosehilldesignbuild.com",
     replyTo: email,
     subject: `Subcontractor Application (${region}) — ${trade}`,
-    text: `Name: ${name}\nTrade: ${trade}\nPhone: ${phone}\nEmail: ${email}\nRegion: ${region}\n\n${message || ""}`,
+    text: `Name: ${name}\nTrade: ${trade}\nPhone: ${phone}\nEmail: ${email}\nRegion: ${region}\n\n${message}`,
     attachments,
   });
 

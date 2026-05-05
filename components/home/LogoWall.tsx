@@ -10,7 +10,7 @@ function listLogoItems(): LogoMeta[] {
     .readdirSync(dir)
     .filter(
       (f) =>
-        /\.(png|svg)$/i.test(f) && !f.startsWith(".") && !f.startsWith(".__")
+        /\.(webp|svg)$/i.test(f) && !f.startsWith(".") && !f.startsWith(".__")
     )
     .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
 

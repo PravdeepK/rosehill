@@ -3,9 +3,11 @@
 @theme {
   --color-gold: #CB9E41;
   --color-gold-light: #d9b05a;
+  /* WCAG AA small text on warm-white / warm-grey (~5:1+) */
+  --color-gold-contrast: #5a4620;
   --color-warm-white: #f5f4f0;
   --color-warm-grey: #e8e6e1;
-  --color-light-grey: #606263;
+  --color-light-grey: #f2f1ee;
   --color-dark: #393A3B;
   --color-medium-grey: #606263;
   --font-sans: var(--font-dm-sans), system-ui, sans-serif;
@@ -33,4 +35,44 @@ body {
 }
 .scrollbar-none::-webkit-scrollbar {
   display: none;
+}
+
+/* CSS-only entry animation for Hero text. Avoids pulling framer-motion
+   into the home page client bundle just for a few staggered fades. */
+@keyframes hero-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.hero-fade-up {
+  opacity: 0;
+  animation: hero-fade-up 0.8s ease-out forwards;
+}
+
+.hero-fade {
+  opacity: 0;
+  animation: hero-fade 1s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-fade-up,
+  .hero-fade {
+    animation: none;
+    opacity: 1;
+  }
 }

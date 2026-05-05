@@ -21,13 +21,21 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { name, email, phone, "project-type": projectType, message, website } = body;
+  const name = typeof body.name === "string" ? body.name.trim() : "";
+  const email = typeof body.email === "string" ? body.email.trim() : "";
+  const phone = typeof body.phone === "string" ? body.phone.trim() : "";
+  const projectType = typeof body["project-type"] === "string" ? body["project-type"].trim() : "";
+  const message = typeof body.message === "string" ? body.message.trim() : "";
+  const website = typeof body.website === "string" ? body.website.trim() : "";
 
   // Honeypot — silent success
   if (website) {
     return NextResponse.json({ success: true });
   }
 
+  if (!name || !projectType) {
+    return NextResponse.json({ error: "Name and project type are required." }, { status: 400 });
+  }
   if (!EMAIL_RE.test(email)) {
     return NextResponse.json({ error: "Invalid email address." }, { status: 400 });
   }
