@@ -4,6 +4,11 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import JsonLd from "@/components/seo/JsonLd";
+import {
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_URL,
+} from "@/lib/site";
 
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
@@ -11,16 +16,15 @@ const dmSans = DM_Sans({
   weight: ["300", "400", "500", "700"],
 });
 
-const SITE_URL = "https://rosehilldesignbuild.com";
+const defaultTitle = `${SITE_NAME} | Leaders in Luxury Retail`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Rose Hill Design Build | Leaders in Luxury",
-    template: "%s | Rose Hill Design Build",
+    default: defaultTitle,
+    template: `%s | ${SITE_NAME}`,
   },
-  description:
-    "Rose Hill Design Build delivers high-end design-build services specializing in luxury retail, commercial, and residential projects across North America.",
+  description: SITE_DESCRIPTION,
   icons: {
     icon: "/company-logos/rose-hill-cropped.svg",
   },
@@ -28,27 +32,28 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: SITE_URL,
-    siteName: "Rose Hill Design Build",
-    title: "Rose Hill Design Build | Leaders in Luxury",
-    description:
-      "High-end design-build services specializing in luxury retail, commercial, and residential projects across North America.",
+    siteName: SITE_NAME,
+    title: defaultTitle,
+    description: SITE_DESCRIPTION,
   },
   twitter: {
     card: "summary_large_image",
-    title: "Rose Hill Design Build | Leaders in Luxury",
-    description:
-      "High-end design-build services specializing in luxury retail, commercial, and residential projects across North America.",
+    title: defaultTitle,
+    description: SITE_DESCRIPTION,
   },
   alternates: {
     canonical: SITE_URL,
   },
   keywords: [
-    "design build",
+    "Rose Hill Design Build",
     "luxury retail",
+    "luxury retail construction",
+    "design-build",
+    "design build",
     "commercial construction",
+    "residential construction",
     "retail fit-out",
-    "restaurant construction",
-    "Rose Hill",
+    "fit-out",
     "North America",
     "general contractor",
   ],

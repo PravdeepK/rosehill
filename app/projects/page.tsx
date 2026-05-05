@@ -5,7 +5,7 @@ import SectionLabel from "@/components/ui/SectionLabel";
 export const metadata = {
   title: "Projects",
   description:
-    "Explore our portfolio of luxury retail, commercial, and residential design-build projects across North America.",
+    "Explore Rose Hill Design Build's portfolio — luxury retail, commercial, and residential design-build across North America.",
   alternates: { canonical: "/projects" },
 };
 
