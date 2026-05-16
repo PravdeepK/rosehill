@@ -54,3 +54,6 @@ next-env.d.ts
 
 # project brief
 brief.md
+
+# large local-only media (served from Cloudflare Stream)
+/public/videos/

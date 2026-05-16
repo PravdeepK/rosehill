@@ -1,56 +1,31 @@
 import Link from "next/link";
 
+const STREAM_SUBDOMAIN = process.env.NEXT_PUBLIC_CLOUDFLARE_STREAM_SUBDOMAIN;
+const VIDEO_UID = process.env.NEXT_PUBLIC_HERO_VIDEO_UID;
+
 export default function Hero() {
+  const streamSrc = `https://${STREAM_SUBDOMAIN}/${VIDEO_UID}/iframe?autoplay=true&muted=true&loop=true&controls=false&preload=true&poster=https://${STREAM_SUBDOMAIN}/${VIDEO_UID}/thumbnails/thumbnail.jpg`;
+
   return (
     <section className="relative min-h-[100svh] w-full overflow-hidden flex items-center justify-center">
-      {/* Preload the LCP image per breakpoint so the browser can start
-          fetching it in parallel with the CSS. React 19 hoists <link>
-          elements rendered in JSX to <head>. */}
-      <link
-        rel="preload"
-        as="image"
-        media="(max-width: 768px)"
-        href="/images/hero-mobile.webp"
-        imageSrcSet="/images/hero-mobile.webp 620w, /images/hero-mobile-2x.webp 1240w"
-        imageSizes="100vw"
-        fetchPriority="high"
+      {/* iframe cover trick: scale to fill container while preserving 16:9 aspect ratio */}
+      <iframe
+        src={streamSrc}
+        allow="autoplay; fullscreen; picture-in-picture"
+        aria-label="Rose Hill Design Build showreel"
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          width: "100vw",
+          height: "56.25vw",
+          minHeight: "100%",
+          minWidth: "177.78vh",
+          transform: "translate(-50%, -50%)",
+          border: "none",
+          pointerEvents: "none",
+        }}
       />
-      <link
-        rel="preload"
-        as="image"
-        media="(min-width: 769px)"
-        href="/images/hero-desktop.webp"
-        imageSrcSet="/images/hero-desktop.webp 1600w, /images/hero-desktop-2x.webp 2400w"
-        imageSizes="100vw"
-        fetchPriority="high"
-      />
-
-      {/* Art-directed hero image. Mobile uses a 1:2 portrait WebP that
-          matches the 412×823 viewport (so Lighthouse's image-aspect-ratio
-          and image-size-responsive audits pass) and is small enough to
-          ship without delaying LCP. Desktop uses a 3:2 landscape WebP. */}
-      <picture>
-        <source
-          type="image/webp"
-          media="(max-width: 768px)"
-          srcSet="/images/hero-mobile.webp 620w, /images/hero-mobile-2x.webp 1240w"
-          sizes="100vw"
-        />
-        <source
-          type="image/webp"
-          srcSet="/images/hero-desktop.webp 1600w, /images/hero-desktop-2x.webp 2400w"
-          sizes="100vw"
-        />
-        <img
-          src="/images/hero-desktop.webp"
-          alt="Guerlain Spa lobby at Hotel X — interior designed and built by Rose Hill"
-          width={1600}
-          height={1067}
-          fetchPriority="high"
-          decoding="async"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-      </picture>
 
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/35 to-black/20" />
 
