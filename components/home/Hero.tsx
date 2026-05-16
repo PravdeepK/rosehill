@@ -1,30 +1,63 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useRef } from "react";
 
 const STREAM_SUBDOMAIN = process.env.NEXT_PUBLIC_CLOUDFLARE_STREAM_SUBDOMAIN;
 const VIDEO_UID = process.env.NEXT_PUBLIC_HERO_VIDEO_UID;
 
+const HLS_SRC = `https://${STREAM_SUBDOMAIN}/${VIDEO_UID}/manifest/video.m3u8`;
+const POSTER = `https://${STREAM_SUBDOMAIN}/${VIDEO_UID}/thumbnails/thumbnail.jpg?height=1080`;
+
 export default function Hero() {
-  const streamSrc = `https://${STREAM_SUBDOMAIN}/${VIDEO_UID}/iframe?autoplay=true&muted=true&loop=true&controls=false&preload=true&poster=https://${STREAM_SUBDOMAIN}/${VIDEO_UID}/thumbnails/thumbnail.jpg`;
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    // Safari plays HLS natively at the best level its bandwidth estimate allows.
+    if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      video.src = HLS_SRC;
+      return;
+    }
+
+    let hls: import("hls.js").default | null = null;
+    let cancelled = false;
+
+    import("hls.js").then(({ default: Hls }) => {
+      if (cancelled || !Hls.isSupported()) return;
+      hls = new Hls({ capLevelToPlayerSize: false });
+      hls.loadSource(HLS_SRC);
+      hls.attachMedia(video);
+      // Pin to the highest rendition the moment we know what's available — no ABR ramp-up.
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        if (!hls) return;
+        const top = hls.levels.length - 1;
+        hls.currentLevel = top;
+        hls.loadLevel = top;
+        hls.nextLevel = top;
+      });
+    });
+
+    return () => {
+      cancelled = true;
+      hls?.destroy();
+    };
+  }, []);
 
   return (
     <section className="relative min-h-[100svh] w-full overflow-hidden flex items-center justify-center">
-      {/* iframe cover trick: scale to fill container while preserving 16:9 aspect ratio */}
-      <iframe
-        src={streamSrc}
-        allow="autoplay; fullscreen; picture-in-picture"
+      <video
+        ref={videoRef}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        poster={POSTER}
         aria-label="Rose Hill Design Build showreel"
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          width: "100vw",
-          height: "56.25vw",
-          minHeight: "100%",
-          minWidth: "177.78vh",
-          transform: "translate(-50%, -50%)",
-          border: "none",
-          pointerEvents: "none",
-        }}
+        className="absolute inset-0 w-full h-full object-cover object-center"
       />
 
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/35 to-black/20" />
