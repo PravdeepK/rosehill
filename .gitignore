@@ -55,5 +55,7 @@ next-env.d.ts
 # project brief
 brief.md
 
-# large local-only media (served from Cloudflare Stream)
-/public/videos/
+# large local-only media — only the hero hq encodes are tracked
+/public/videos/*
+!/public/videos/rosehill-hero-hq.mp4
+!/public/videos/rosehill-hero-hq.webm

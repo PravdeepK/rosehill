@@ -1,31 +1,27 @@
 import Link from "next/link";
 
-const STREAM_SUBDOMAIN = process.env.NEXT_PUBLIC_CLOUDFLARE_STREAM_SUBDOMAIN;
-const VIDEO_UID = process.env.NEXT_PUBLIC_HERO_VIDEO_UID;
-
 export default function Hero() {
-  const streamSrc = `https://${STREAM_SUBDOMAIN}/${VIDEO_UID}/iframe?autoplay=true&muted=true&loop=true&controls=false&preload=true&poster=https://${STREAM_SUBDOMAIN}/${VIDEO_UID}/thumbnails/thumbnail.jpg`;
-
   return (
     <section className="relative min-h-[100svh] w-full overflow-hidden flex items-center justify-center">
-      {/* iframe cover trick: scale to fill container while preserving 16:9 aspect ratio */}
-      <iframe
-        src={streamSrc}
-        allow="autoplay; fullscreen; picture-in-picture"
-        aria-label="Rose Hill Design Build showreel"
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          width: "100vw",
-          height: "56.25vw",
-          minHeight: "100%",
-          minWidth: "177.78vh",
-          transform: "translate(-50%, -50%)",
-          border: "none",
-          pointerEvents: "none",
-        }}
+      <link
+        rel="preload"
+        as="image"
+        href="/images/rosehill-hero-poster.jpg"
+        fetchPriority="high"
       />
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        poster="/images/rosehill-hero-poster.jpg"
+        aria-label="Rose Hill Design Build showreel"
+        className="absolute inset-0 w-full h-full object-cover object-center"
+      >
+        <source src="/videos/rosehill-hero-hq.webm" type="video/webm" />
+        <source src="/videos/rosehill-hero-hq.mp4" type="video/mp4" />
+      </video>
 
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/35 to-black/20" />
 
