@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const STREAM_SUBDOMAIN = process.env.NEXT_PUBLIC_CLOUDFLARE_STREAM_SUBDOMAIN;
 const VIDEO_UID = process.env.NEXT_PUBLIC_HERO_VIDEO_UID;
@@ -9,45 +9,109 @@ const VIDEO_UID = process.env.NEXT_PUBLIC_HERO_VIDEO_UID;
 const HLS_SRC = `https://${STREAM_SUBDOMAIN}/${VIDEO_UID}/manifest/video.m3u8`;
 const POSTER = `https://${STREAM_SUBDOMAIN}/${VIDEO_UID}/thumbnails/thumbnail.jpg?height=1080`;
 
+// Keep the poster up until the video is decoding frames at least this tall, so
+// visitors never see a low-bitrate HLS rendition. The fallback reveals whatever
+// is playing after this long, so a slow connection can't freeze on the poster.
+const FULL_QUALITY_HEIGHT = 1080;
+const REVEAL_FALLBACK_MS = 8000;
+
+// Pull the highest-bandwidth media playlist out of a Cloudflare Stream
+// multivariant manifest. Pointing Safari's native player straight at it leaves
+// only one rendition to choose, so it starts at full quality with no ramp-up.
+async function topRenditionSrc(manifestUrl: string): Promise<string> {
+  try {
+    const text = await (await fetch(manifestUrl)).text();
+    const lines = text.split("\n");
+    let best = { bandwidth: -1, uri: "" };
+    for (let i = 0; i < lines.length; i++) {
+      if (!lines[i].startsWith("#EXT-X-STREAM-INF:")) continue;
+      const bandwidth = Number(lines[i].match(/BANDWIDTH=(\d+)/)?.[1] ?? 0);
+      const uri = lines[i + 1]?.trim();
+      if (uri && bandwidth > best.bandwidth) best = { bandwidth, uri };
+    }
+    if (best.uri) return new URL(best.uri, manifestUrl).href;
+  } catch {
+    // fall through to the multivariant manifest
+  }
+  return manifestUrl;
+}
+
 export default function Hero() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [revealed, setRevealed] = useState(false);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    // Safari plays HLS natively at the best level its bandwidth estimate allows.
-    if (video.canPlayType("application/vnd.apple.mpegurl")) {
-      video.src = HLS_SRC;
-      return;
-    }
+    let cancelled = false;
+    const reveal = () => {
+      if (!cancelled) setRevealed(true);
+    };
+
+    // Cross-fade in only once a full-quality frame is decoded.
+    const revealIfSharp = () => {
+      if (video.videoHeight >= FULL_QUALITY_HEIGHT) reveal();
+    };
+    video.addEventListener("loadeddata", revealIfSharp);
+    video.addEventListener("canplay", revealIfSharp);
+    video.addEventListener("playing", revealIfSharp);
+    video.addEventListener("resize", revealIfSharp); // fires on rendition switch
+
+    // Safety net: never leave the hero stuck on the static poster.
+    const fallback = window.setTimeout(() => {
+      if (video.readyState >= 2) reveal();
+    }, REVEAL_FALLBACK_MS);
 
     let hls: import("hls.js").default | null = null;
-    let cancelled = false;
 
-    import("hls.js").then(({ default: Hls }) => {
-      if (cancelled || !Hls.isSupported()) return;
-      hls = new Hls({ capLevelToPlayerSize: false });
-      hls.loadSource(HLS_SRC);
-      hls.attachMedia(video);
-      // Pin to the highest rendition the moment we know what's available — no ABR ramp-up.
-      hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        if (!hls) return;
-        const top = hls.levels.length - 1;
-        hls.currentLevel = top;
-        hls.loadLevel = top;
-        hls.nextLevel = top;
+    if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      // Safari: play the top rendition's playlist directly — no ABR ramp-up.
+      topRenditionSrc(HLS_SRC).then((src) => {
+        if (!cancelled) video.src = src;
       });
-    });
+    } else {
+      import("hls.js").then(({ default: Hls }) => {
+        if (cancelled || !Hls.isSupported()) return;
+        hls = new Hls({ capLevelToPlayerSize: false });
+        hls.loadSource(HLS_SRC);
+        hls.attachMedia(video);
+        // Pin to the highest rendition before the first segment loads.
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          if (!hls) return;
+          const top = hls.levels.length - 1;
+          hls.currentLevel = top;
+          hls.loadLevel = top;
+          hls.nextLevel = top;
+        });
+      });
+    }
 
     return () => {
       cancelled = true;
+      window.clearTimeout(fallback);
+      video.removeEventListener("loadeddata", revealIfSharp);
+      video.removeEventListener("canplay", revealIfSharp);
+      video.removeEventListener("playing", revealIfSharp);
+      video.removeEventListener("resize", revealIfSharp);
       hls?.destroy();
     };
   }, []);
 
   return (
-    <section className="relative min-h-[100svh] w-full overflow-hidden flex items-center justify-center">
+    <section className="relative min-h-[100svh] w-full overflow-hidden flex items-center justify-center bg-black">
+      <link rel="preload" as="image" href={POSTER} fetchPriority="high" />
+
+      {/* Static full-res poster — holds until the video is playing at full quality. */}
+      <img
+        src={POSTER}
+        alt=""
+        aria-hidden="true"
+        fetchPriority="high"
+        className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700 ${
+          revealed ? "opacity-0" : "opacity-100"
+        }`}
+      />
       <video
         ref={videoRef}
         autoPlay
@@ -55,9 +119,10 @@ export default function Hero() {
         loop
         playsInline
         preload="auto"
-        poster={POSTER}
         aria-label="Rose Hill Design Build showreel"
-        className="absolute inset-0 w-full h-full object-cover object-center"
+        className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700 ${
+          revealed ? "opacity-100" : "opacity-0"
+        }`}
       />
 
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/35 to-black/20" />
