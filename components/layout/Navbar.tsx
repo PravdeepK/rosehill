@@ -79,6 +79,9 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
+                // No prefetch: hovering otherwise fires a route fetch + JS
+                // eval on the main thread, which hitches the hero video.
+                prefetch={false}
                 className={`text-sm uppercase tracking-widest transition-colors hover:text-gold focus-visible:text-gold focus-visible:outline-none ${
                   active
                     ? "text-gold"
@@ -132,6 +135,7 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
+                prefetch={false}
                 className={`py-4 text-sm uppercase tracking-widest hover:text-gold transition-colors ${
                   active ? "text-gold" : "text-dark"
                 }`}
