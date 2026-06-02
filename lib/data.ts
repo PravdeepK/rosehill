@@ -61,21 +61,21 @@ export const projects: Project[] = [
 export const testimonials: Testimonial[] = [
   {
     quote:
-      "We had an extremely tight deadline and needed to keep our dining room open. Angelo and his team worked day and night, kept us updated, and delivered on time and on budget.",
-    name: "Britwin Dias",
-    title: "Client",
-  },
-  {
-    quote:
-      "Angelo and his team were professional, hard working, and very talented. They completed my condo renovation ahead of schedule, on budget, and to perfection.",
-    name: "Lisa Lama",
-    title: "Client",
-  },
-  {
-    quote:
-      "After seeing their workmanship, I gave the job to Angelo. The renovation was completed as scheduled, better than expected, and over a year later not a single problem has occurred.",
-    name: "Bill D.",
+      "Working with Rose Hill Design Build has been a true partnership. They communicate clearly, have great attention to detail, and share the same goal of bringing the project's vision to life.",
+    name: "Melissa Bryner",
     title: "Partner",
+  },
+  {
+    quote:
+      "Rose Hill Design Build delivered our commercial space on time and exactly as we envisioned. From the first meeting their team was professional, organized, and genuinely invested in the outcome. We wouldn't trust anyone else with our next build.",
+    name: "Geo Balaskas",
+    title: "Client",
+  },
+  {
+    quote:
+      "I've worked with a lot of contractors over the years and Rose Hill stands apart. They understood the demands of our project right away and kept things moving without ever cutting corners. The finished space speaks for itself.",
+    name: "Chris Mesner",
+    title: "Client",
   },
 ];
 

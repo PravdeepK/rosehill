@@ -154,7 +154,7 @@ export default function Hero() {
             href="/contact"
             className="inline-flex items-center justify-center bg-gold text-dark px-10 py-3.5 text-sm uppercase tracking-widest font-medium hover:bg-gold-light transition-colors duration-300"
           >
-            Get In Touch
+            Connect With Us
           </Link>
         </div>
       </div>
