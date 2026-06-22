@@ -2,15 +2,22 @@ import SectionLabel from "@/components/ui/SectionLabel";
 import Reveal from "@/components/ui/Reveal";
 import { services } from "@/lib/data";
 
-export default function Services() {
+export const metadata = {
+  title: "Services",
+  description:
+    "Rose Hill Design Build services — branding & design activation, pre-construction, commercial, residential, and special project capabilities across North America.",
+  alternates: { canonical: "/services" },
+};
+
+export default function ServicesPage() {
   return (
-    <section className="py-20 md:py-28 px-6 lg:px-8 bg-warm-grey">
+    <section className="pt-28 md:pt-32 pb-20 md:pb-24 px-6 lg:px-8 bg-warm-grey">
       <div className="max-w-7xl mx-auto">
         <Reveal className="text-center mb-12 md:mb-16">
           <SectionLabel>Services</SectionLabel>
-          <h2 className="text-3xl md:text-4xl font-light mt-4 text-dark">
+          <h1 className="text-3xl md:text-4xl font-light mt-4 text-dark">
             Excellence in Every Detail
-          </h2>
+          </h1>
         </Reveal>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
@@ -34,16 +41,6 @@ export default function Services() {
                       : ""
                 }`}
               >
-                {featuredLeft && (
-                  <span className="text-[10px] uppercase tracking-widest text-gold mb-3 block">
-                    Core Expertise
-                  </span>
-                )}
-                {featuredRight && (
-                  <span className="text-[10px] uppercase tracking-widest text-gold mb-3 block lg:text-right">
-                    Specialized Builds
-                  </span>
-                )}
                 <h3 className="text-base md:text-lg font-medium mb-2 md:mb-3">
                   {service.name}
                 </h3>

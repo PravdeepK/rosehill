@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { markHeroReady } from "@/lib/heroReady";
 
 const STREAM_SUBDOMAIN = process.env.NEXT_PUBLIC_CLOUDFLARE_STREAM_SUBDOMAIN;
 const VIDEO_UID = process.env.NEXT_PUBLIC_HERO_VIDEO_UID;
@@ -9,32 +10,16 @@ const VIDEO_UID = process.env.NEXT_PUBLIC_HERO_VIDEO_UID;
 const HLS_SRC = `https://${STREAM_SUBDOMAIN}/${VIDEO_UID}/manifest/video.m3u8`;
 const POSTER = `https://${STREAM_SUBDOMAIN}/${VIDEO_UID}/thumbnails/thumbnail.jpg?height=1080`;
 
-// Keep the poster up until the video is decoding frames at least this tall, so
-// visitors never see a low-bitrate HLS rendition. The fallback reveals whatever
-// is playing after this long, so a slow connection can't freeze on the poster.
+// Adaptive streaming starts on a low rendition and ramps up. To never show that
+// 720→1080 ramp, we hold the full-resolution poster (a sharp still) until the
+// stream has actually reached its top rendition, then cross-fade straight to
+// full quality. This keeps the reveal crisp on every load — the first visit
+// (behind the intro splash) and any later refresh (behind the poster) alike. The
+// same moment also clears the splash via markHeroReady.
 const FULL_QUALITY_HEIGHT = 1080;
+// If the top rendition never arrives (slow link), reveal whatever's buffered
+// after this long rather than sitting on the poster forever.
 const REVEAL_FALLBACK_MS = 8000;
-
-// Pull the highest-bandwidth media playlist out of a Cloudflare Stream
-// multivariant manifest. Pointing Safari's native player straight at it leaves
-// only one rendition to choose, so it starts at full quality with no ramp-up.
-async function topRenditionSrc(manifestUrl: string): Promise<string> {
-  try {
-    const text = await (await fetch(manifestUrl)).text();
-    const lines = text.split("\n");
-    let best = { bandwidth: -1, uri: "" };
-    for (let i = 0; i < lines.length; i++) {
-      if (!lines[i].startsWith("#EXT-X-STREAM-INF:")) continue;
-      const bandwidth = Number(lines[i].match(/BANDWIDTH=(\d+)/)?.[1] ?? 0);
-      const uri = lines[i + 1]?.trim();
-      if (uri && bandwidth > best.bandwidth) best = { bandwidth, uri };
-    }
-    if (best.uri) return new URL(best.uri, manifestUrl).href;
-  } catch {
-    // fall through to the multivariant manifest
-  }
-  return manifestUrl;
-}
 
 export default function Hero() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -45,44 +30,45 @@ export default function Hero() {
     if (!video) return;
 
     let cancelled = false;
-    const reveal = () => {
-      if (!cancelled) setRevealed(true);
-    };
 
-    // Cross-fade in only once a full-quality frame is decoded.
-    const revealIfSharp = () => {
-      if (video.videoHeight >= FULL_QUALITY_HEIGHT) reveal();
+    // Cross-fade poster→video and clear the splash together, the moment full
+    // quality is live — so the quality ramp is never on screen.
+    const revealAtFullQuality = () => {
+      if (cancelled) return;
+      setRevealed(true);
+      markHeroReady();
     };
-    video.addEventListener("loadeddata", revealIfSharp);
-    video.addEventListener("canplay", revealIfSharp);
-    video.addEventListener("playing", revealIfSharp);
-    video.addEventListener("resize", revealIfSharp); // fires on rendition switch
+    const onProgress = () => {
+      if (video.videoHeight >= FULL_QUALITY_HEIGHT) revealAtFullQuality();
+    };
+    video.addEventListener("loadeddata", onProgress);
+    video.addEventListener("canplay", onProgress);
+    video.addEventListener("playing", onProgress);
+    video.addEventListener("resize", onProgress); // fires on rendition switch
 
-    // Safety net: never leave the hero stuck on the static poster.
+    // Safety net: don't sit on the poster forever on a slow connection.
     const fallback = window.setTimeout(() => {
-      if (video.readyState >= 2) reveal();
+      if (video.readyState >= 2) revealAtFullQuality();
     }, REVEAL_FALLBACK_MS);
 
     let hls: import("hls.js").default | null = null;
 
     if (video.canPlayType("application/vnd.apple.mpegurl")) {
-      // Safari: play the top rendition's playlist directly — no ABR ramp-up.
-      topRenditionSrc(HLS_SRC).then((src) => {
-        if (!cancelled) video.src = src;
-      });
+      // Safari: let the native player run ABR off the multivariant manifest.
+      video.src = HLS_SRC;
     } else {
       import("hls.js").then(({ default: Hls }) => {
         if (cancelled || !Hls.isSupported()) return;
-        hls = new Hls({ capLevelToPlayerSize: false });
+        // Default config keeps ABR on: fast low-rendition start, ramps to 1080p.
+        hls = new Hls();
         hls.loadSource(HLS_SRC);
         hls.attachMedia(video);
-        // Pin to the highest rendition before the first segment loads.
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          if (!hls) return;
-          const top = hls.levels.length - 1;
-          hls.currentLevel = top;
-          hls.loadLevel = top;
-          hls.nextLevel = top;
+        // ABR reaching the highest level is the definitive "full quality" cue —
+        // more reliable than pixel height across renditions.
+        hls.on(Hls.Events.LEVEL_SWITCHED, (_event, data) => {
+          if (!cancelled && hls && data.level >= hls.levels.length - 1) {
+            revealAtFullQuality();
+          }
         });
       });
     }
@@ -90,10 +76,10 @@ export default function Hero() {
     return () => {
       cancelled = true;
       window.clearTimeout(fallback);
-      video.removeEventListener("loadeddata", revealIfSharp);
-      video.removeEventListener("canplay", revealIfSharp);
-      video.removeEventListener("playing", revealIfSharp);
-      video.removeEventListener("resize", revealIfSharp);
+      video.removeEventListener("loadeddata", onProgress);
+      video.removeEventListener("canplay", onProgress);
+      video.removeEventListener("playing", onProgress);
+      video.removeEventListener("resize", onProgress);
       hls?.destroy();
     };
   }, []);
