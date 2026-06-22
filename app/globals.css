@@ -101,7 +101,10 @@ body {
 .intro-logo {
   width: min(72vw, 440px);
   height: auto;
-  animation: intro-logo-in 0.8s ease-out both;
+  /* Fade in once, then pulse on a loop to signal the page is still loading. */
+  animation:
+    intro-logo-in 0.8s ease-out both,
+    intro-logo-pulse 1.8s ease-in-out 0.8s infinite;
 }
 
 @keyframes intro-logo-in {
@@ -115,9 +118,54 @@ body {
   }
 }
 
+@keyframes intro-logo-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.72;
+    transform: scale(0.995);
+  }
+}
+
+/* Loading bar pinned below the logo. Width is driven by IntroGate state: it
+   eases up to ~90% while the video loads, then transitions to 100% the moment
+   the hero signals it's ready (data-complete), just before the cross-fade. */
+.intro-progress {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(2.5rem, 9vh, 5rem);
+  transform: translateX(-50%);
+  width: min(72vw, 440px);
+  height: 2px;
+  border-radius: 999px;
+  background-color: var(--color-warm-grey);
+  overflow: hidden;
+}
+
+.intro-progress__fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background-color: var(--color-gold);
+  /* Trickle: quick off the line, easing as it approaches the cap. */
+  transition: width 7s cubic-bezier(0.12, 0.7, 0.2, 1);
+}
+
+.intro-progress__fill[data-complete="true"] {
+  /* Snap to full once the video is actually ready. */
+  transition: width 0.4s ease-out;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .intro-logo {
     animation: none;
     opacity: 1;
+  }
+
+  .intro-progress__fill {
+    transition: none;
   }
 }

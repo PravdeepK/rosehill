@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { markHeroReady } from "@/lib/heroReady";
+import { isHeroReady, markHeroReady } from "@/lib/heroReady";
 
 const STREAM_SUBDOMAIN = process.env.NEXT_PUBLIC_CLOUDFLARE_STREAM_SUBDOMAIN;
 const VIDEO_UID = process.env.NEXT_PUBLIC_HERO_VIDEO_UID;
@@ -10,12 +10,14 @@ const VIDEO_UID = process.env.NEXT_PUBLIC_HERO_VIDEO_UID;
 const HLS_SRC = `https://${STREAM_SUBDOMAIN}/${VIDEO_UID}/manifest/video.m3u8`;
 const POSTER = `https://${STREAM_SUBDOMAIN}/${VIDEO_UID}/thumbnails/thumbnail.jpg?height=1080`;
 
-// Adaptive streaming starts on a low rendition and ramps up. To never show that
-// 720→1080 ramp, we hold the full-resolution poster (a sharp still) until the
-// stream has actually reached its top rendition, then cross-fade straight to
-// full quality. This keeps the reveal crisp on every load — the first visit
-// (behind the intro splash) and any later refresh (behind the poster) alike. The
-// same moment also clears the splash via markHeroReady.
+// Adaptive streaming starts on a low rendition and ramps up. On the FIRST load
+// (behind the intro splash) we hold the full-resolution poster until the stream
+// reaches its top rendition, then cross-fade straight to full quality — so the
+// 720→1080 ramp is never seen, and the same moment clears the splash via
+// markHeroReady. On a RETURN visit (in-app nav back to the landing page, where
+// isHeroReady() is already set and the segments are warm) there's no splash, so
+// sitting on the poster through a fresh ramp just looks like a stall — instead we
+// reveal as soon as the video can play, for a quick poster→video swap.
 const FULL_QUALITY_HEIGHT = 1080;
 // If the top rendition never arrives (slow link), reveal whatever's buffered
 // after this long rather than sitting on the poster forever.
@@ -30,16 +32,19 @@ export default function Hero() {
     if (!video) return;
 
     let cancelled = false;
+    // A return visit (in-app nav) reveals on first playable frame; a first load
+    // waits for full quality so the splash clears to a sharp 1080p reveal.
+    const fastReveal = isHeroReady();
 
-    // Cross-fade poster→video and clear the splash together, the moment full
-    // quality is live — so the quality ramp is never on screen.
-    const revealAtFullQuality = () => {
+    // Cross-fade poster→video and clear the splash together — on a first load the
+    // moment full quality is live, on a return visit as soon as it can play.
+    const reveal = () => {
       if (cancelled) return;
       setRevealed(true);
       markHeroReady();
     };
     const onProgress = () => {
-      if (video.videoHeight >= FULL_QUALITY_HEIGHT) revealAtFullQuality();
+      if (fastReveal || video.videoHeight >= FULL_QUALITY_HEIGHT) reveal();
     };
     video.addEventListener("loadeddata", onProgress);
     video.addEventListener("canplay", onProgress);
@@ -48,7 +53,7 @@ export default function Hero() {
 
     // Safety net: don't sit on the poster forever on a slow connection.
     const fallback = window.setTimeout(() => {
-      if (video.readyState >= 2) revealAtFullQuality();
+      if (video.readyState >= 2) reveal();
     }, REVEAL_FALLBACK_MS);
 
     let hls: import("hls.js").default | null = null;
@@ -67,7 +72,7 @@ export default function Hero() {
         // more reliable than pixel height across renditions.
         hls.on(Hls.Events.LEVEL_SWITCHED, (_event, data) => {
           if (!cancelled && hls && data.level >= hls.levels.length - 1) {
-            revealAtFullQuality();
+            reveal();
           }
         });
       });
