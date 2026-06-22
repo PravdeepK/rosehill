@@ -30,7 +30,7 @@ export default function LogoWall() {
         <div className="text-center mb-12 md:mb-16">
           <SectionLabel>Partners</SectionLabel>
           <h2 className="text-2xl md:text-3xl font-light mt-4 text-dark">
-            Brands we&apos;ve worked with
+            A Legacy of Collaboration
           </h2>
         </div>
 

@@ -7,9 +7,9 @@ export default function Testimonials() {
     <section className="py-20 md:py-28 px-6 lg:px-8 bg-dark text-warm-white">
       <div className="max-w-7xl mx-auto">
         <Reveal className="text-center mb-12 md:mb-16">
-          <SectionLabel>Testimonials</SectionLabel>
+          <SectionLabel color="text-gold">Testimonials</SectionLabel>
           <h2 className="text-3xl md:text-4xl font-light mt-4">
-            What Our Clients Say
+            Client Success Starts Here
           </h2>
         </Reveal>
 

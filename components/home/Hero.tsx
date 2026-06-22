@@ -1,56 +1,115 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+import { markHeroReady } from "@/lib/heroReady";
+
+const STREAM_SUBDOMAIN = process.env.NEXT_PUBLIC_CLOUDFLARE_STREAM_SUBDOMAIN;
+const VIDEO_UID = process.env.NEXT_PUBLIC_HERO_VIDEO_UID;
+
+const HLS_SRC = `https://${STREAM_SUBDOMAIN}/${VIDEO_UID}/manifest/video.m3u8`;
+const POSTER = `https://${STREAM_SUBDOMAIN}/${VIDEO_UID}/thumbnails/thumbnail.jpg?height=1080`;
+
+// Adaptive streaming starts on a low rendition and ramps up. To never show that
+// 720→1080 ramp, we hold the full-resolution poster (a sharp still) until the
+// stream has actually reached its top rendition, then cross-fade straight to
+// full quality. This keeps the reveal crisp on every load — the first visit
+// (behind the intro splash) and any later refresh (behind the poster) alike. The
+// same moment also clears the splash via markHeroReady.
+const FULL_QUALITY_HEIGHT = 1080;
+// If the top rendition never arrives (slow link), reveal whatever's buffered
+// after this long rather than sitting on the poster forever.
+const REVEAL_FALLBACK_MS = 8000;
 
 export default function Hero() {
-  return (
-    <section className="relative min-h-[100svh] w-full overflow-hidden flex items-center justify-center">
-      {/* Preload the LCP image per breakpoint so the browser can start
-          fetching it in parallel with the CSS. React 19 hoists <link>
-          elements rendered in JSX to <head>. */}
-      <link
-        rel="preload"
-        as="image"
-        media="(max-width: 768px)"
-        href="/images/hero-mobile.webp"
-        imageSrcSet="/images/hero-mobile.webp 620w, /images/hero-mobile-2x.webp 1240w"
-        imageSizes="100vw"
-        fetchPriority="high"
-      />
-      <link
-        rel="preload"
-        as="image"
-        media="(min-width: 769px)"
-        href="/images/hero-desktop.webp"
-        imageSrcSet="/images/hero-desktop.webp 1600w, /images/hero-desktop-2x.webp 2400w"
-        imageSizes="100vw"
-        fetchPriority="high"
-      />
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [revealed, setRevealed] = useState(false);
 
-      {/* Art-directed hero image. Mobile uses a 1:2 portrait WebP that
-          matches the 412×823 viewport (so Lighthouse's image-aspect-ratio
-          and image-size-responsive audits pass) and is small enough to
-          ship without delaying LCP. Desktop uses a 3:2 landscape WebP. */}
-      <picture>
-        <source
-          type="image/webp"
-          media="(max-width: 768px)"
-          srcSet="/images/hero-mobile.webp 620w, /images/hero-mobile-2x.webp 1240w"
-          sizes="100vw"
-        />
-        <source
-          type="image/webp"
-          srcSet="/images/hero-desktop.webp 1600w, /images/hero-desktop-2x.webp 2400w"
-          sizes="100vw"
-        />
-        <img
-          src="/images/hero-desktop.webp"
-          alt="Guerlain Spa lobby at Hotel X — interior designed and built by Rose Hill"
-          width={1600}
-          height={1067}
-          fetchPriority="high"
-          decoding="async"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-      </picture>
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    let cancelled = false;
+
+    // Cross-fade poster→video and clear the splash together, the moment full
+    // quality is live — so the quality ramp is never on screen.
+    const revealAtFullQuality = () => {
+      if (cancelled) return;
+      setRevealed(true);
+      markHeroReady();
+    };
+    const onProgress = () => {
+      if (video.videoHeight >= FULL_QUALITY_HEIGHT) revealAtFullQuality();
+    };
+    video.addEventListener("loadeddata", onProgress);
+    video.addEventListener("canplay", onProgress);
+    video.addEventListener("playing", onProgress);
+    video.addEventListener("resize", onProgress); // fires on rendition switch
+
+    // Safety net: don't sit on the poster forever on a slow connection.
+    const fallback = window.setTimeout(() => {
+      if (video.readyState >= 2) revealAtFullQuality();
+    }, REVEAL_FALLBACK_MS);
+
+    let hls: import("hls.js").default | null = null;
+
+    if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      // Safari: let the native player run ABR off the multivariant manifest.
+      video.src = HLS_SRC;
+    } else {
+      import("hls.js").then(({ default: Hls }) => {
+        if (cancelled || !Hls.isSupported()) return;
+        // Default config keeps ABR on: fast low-rendition start, ramps to 1080p.
+        hls = new Hls();
+        hls.loadSource(HLS_SRC);
+        hls.attachMedia(video);
+        // ABR reaching the highest level is the definitive "full quality" cue —
+        // more reliable than pixel height across renditions.
+        hls.on(Hls.Events.LEVEL_SWITCHED, (_event, data) => {
+          if (!cancelled && hls && data.level >= hls.levels.length - 1) {
+            revealAtFullQuality();
+          }
+        });
+      });
+    }
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(fallback);
+      video.removeEventListener("loadeddata", onProgress);
+      video.removeEventListener("canplay", onProgress);
+      video.removeEventListener("playing", onProgress);
+      video.removeEventListener("resize", onProgress);
+      hls?.destroy();
+    };
+  }, []);
+
+  return (
+    <section className="relative min-h-[100svh] w-full overflow-hidden flex items-center justify-center bg-black">
+      <link rel="preload" as="image" href={POSTER} fetchPriority="high" />
+
+      {/* Static full-res poster — holds until the video is playing at full quality. */}
+      <img
+        src={POSTER}
+        alt=""
+        aria-hidden="true"
+        fetchPriority="high"
+        className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700 ${
+          revealed ? "opacity-0" : "opacity-100"
+        }`}
+      />
+      <video
+        ref={videoRef}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        aria-label="Rose Hill Design Build showreel"
+        className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700 ${
+          revealed ? "opacity-100" : "opacity-0"
+        }`}
+      />
 
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/35 to-black/20" />
 
@@ -81,7 +140,7 @@ export default function Hero() {
             href="/contact"
             className="inline-flex items-center justify-center bg-gold text-dark px-10 py-3.5 text-sm uppercase tracking-widest font-medium hover:bg-gold-light transition-colors duration-300"
           >
-            Get In Touch
+            Connect With Us
           </Link>
         </div>
       </div>

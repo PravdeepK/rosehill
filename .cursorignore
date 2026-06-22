@@ -1,0 +1,4 @@
+public/videos/
+.next/
+node_modules/
+.venv/

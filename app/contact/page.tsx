@@ -15,7 +15,7 @@ export default function ContactPage() {
         <div className="text-center mb-12 md:mb-16">
           <SectionLabel>Contact</SectionLabel>
           <h1 className="text-3xl md:text-4xl font-light mt-4 mb-4">
-            Get In Touch
+            Connect With Us
           </h1>
           <p className="text-medium-grey max-w-xl mx-auto leading-relaxed">
             Ready to start your project? Reach out and one of our team will be

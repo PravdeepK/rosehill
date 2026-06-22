@@ -1,0 +1,19 @@
+{
+  "files.exclude": {
+    "node_modules": true,
+    ".next": true,
+    ".venv": true
+  },
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/.next/**": true,
+    "**/.venv/**": true,
+    "**/public/videos/**": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.next": true,
+    "**/.venv": true,
+    "**/public/videos": true
+  }
+}

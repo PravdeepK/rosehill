@@ -54,3 +54,7 @@ next-env.d.ts
 
 # project brief
 brief.md
+
+# large local-only media — the hero streams from Cloudflare Stream, so no
+# video files are tracked; these are local-only masters/encodes
+/public/videos/*

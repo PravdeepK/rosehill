@@ -76,3 +76,48 @@ body {
     opacity: 1;
   }
 }
+
+/* ── Intro splash ──────────────────────────────────────────────────────────
+   Rose Hill logo on warm-white, then a soft cross-fade reveals the site. The
+   overlay is held by JS (see IntroGate) until the hero video has ramped up to a
+   sharp frame, then `data-exit` triggers the fade so the low-res first frames
+   are never seen. */
+.intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-warm-white);
+  opacity: 1;
+  transition: opacity 0.7s ease;
+}
+
+.intro-overlay[data-exit="true"] {
+  opacity: 0;
+}
+
+.intro-logo {
+  width: min(72vw, 440px);
+  height: auto;
+  animation: intro-logo-in 0.8s ease-out both;
+}
+
+@keyframes intro-logo-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-logo {
+    animation: none;
+    opacity: 1;
+  }
+}

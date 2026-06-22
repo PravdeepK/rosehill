@@ -6,6 +6,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 const links = [
+  { label: "Services", href: "/services" },
   { label: "Careers", href: "/careers" },
   { label: "Contact", href: "/contact" },
 ];
@@ -59,17 +60,32 @@ export default function Navbar() {
           className="flex items-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-4"
           aria-label="Rose Hill Design Build — home"
         >
-          <Image
-            src="/company-logos/rose-hill-full.svg"
-            alt="Rose Hill Design Build"
-            width={160}
-            height={44}
-            priority
-            fetchPriority="high"
-            className={`h-auto w-[140px] md:w-[160px] transition-all duration-300 ${
-              isTransparent ? "brightness-0 invert" : ""
-            }`}
-          />
+          {/* Two stacked renditions crossfaded by scroll state: the white
+              wordmark reads over the dark hero, the colour wordmark over the
+              light bar. Both are high-res PNGs (the old SVG was a traced
+              bitmap that looked choppy). */}
+          <span className="relative block h-auto w-[140px] md:w-[160px]">
+            <Image
+              src="/company-logos/rosehill-linear-colour.png"
+              alt="Rose Hill Design Build"
+              width={160}
+              height={44}
+              priority
+              fetchPriority="high"
+              className="h-auto w-full"
+            />
+            <Image
+              src="/company-logos/rosehill-linear-white.png"
+              alt=""
+              aria-hidden
+              width={160}
+              height={44}
+              priority
+              className={`absolute inset-0 h-auto w-full transition-opacity duration-300 ${
+                isTransparent ? "opacity-100" : "opacity-0"
+              }`}
+            />
+          </span>
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
@@ -79,6 +95,9 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
+                // No prefetch: hovering otherwise fires a route fetch + JS
+                // eval on the main thread, which hitches the hero video.
+                prefetch={false}
                 className={`text-sm uppercase tracking-widest transition-colors hover:text-gold focus-visible:text-gold focus-visible:outline-none ${
                   active
                     ? "text-gold"
@@ -132,6 +151,7 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
+                prefetch={false}
                 className={`py-4 text-sm uppercase tracking-widest hover:text-gold transition-colors ${
                   active ? "text-gold" : "text-dark"
                 }`}
