@@ -6,6 +6,7 @@ import { HERO_READY_EVENT, isHeroReady } from "@/lib/heroReady";
 const MIN_MS = 1400; // keep the logo on screen at least this long
 const MAX_MS = 8000; // …but never hang: reveal even if 1080p isn't reached yet
 const EXIT_MS = 700; // overlay cross-fade duration (matches globals.css)
+const TRICKLE_TO = 90; // loading bar eases to this %, then snaps to 100 on ready
 
 // In-memory flag: a full page load (refresh) resets it so the splash replays,
 // while in-app navigation back to the landing page reuses it and skips the
@@ -25,6 +26,10 @@ export default function IntroGate() {
   const [show] = useState(() => !played);
   const [exiting, setExiting] = useState(false);
   const [done, setDone] = useState(false);
+  // Loading bar: trickles toward TRICKLE_TO while the video loads, then snaps
+  // to 100 the moment the hero signals it's ready (or the MAX_MS cap fires).
+  const [progress, setProgress] = useState(0);
+  const [complete, setComplete] = useState(false);
 
   useEffect(() => {
     if (!show) return;
@@ -49,15 +54,23 @@ export default function IntroGate() {
     const dismiss = () => {
       if (dismissed) return;
       dismissed = true;
+      setComplete(true); // fill the bar the rest of the way
+      setProgress(100);
       const remaining = Math.max(0, MIN_MS - (performance.now() - start));
       exitTimer = window.setTimeout(beginExit, remaining);
     };
+
+    // Kick the trickle on the next frame so the bar starts at 0 and eases up.
+    const raf = requestAnimationFrame(() => {
+      if (!dismissed) setProgress(TRICKLE_TO);
+    });
 
     if (isHeroReady()) dismiss();
     else window.addEventListener(HERO_READY_EVENT, dismiss, { once: true });
     const cap = window.setTimeout(dismiss, MAX_MS);
 
     return () => {
+      cancelAnimationFrame(raf);
       window.removeEventListener(HERO_READY_EVENT, dismiss);
       window.clearTimeout(cap);
       window.clearTimeout(exitTimer);
@@ -91,6 +104,13 @@ export default function IntroGate() {
         fetchPriority="high"
         className="intro-logo"
       />
+      <div className="intro-progress">
+        <span
+          className="intro-progress__fill"
+          data-complete={complete}
+          style={{ width: `${progress}%` }}
+        />
+      </div>
     </div>
   );
 }
