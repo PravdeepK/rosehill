@@ -1,13 +1,24 @@
 export interface Testimonial {
   quote: string;
   name: string;
-  title: string;
+  company: string;
 }
 
 export interface Service {
   name: string;
   description: string;
   highlight?: boolean;
+}
+
+export interface ServiceCategory {
+  name: string;
+  items: string[];
+}
+
+export interface ServiceSection {
+  heading: string;
+  description: string;
+  categories: ServiceCategory[];
 }
 
 export interface Project {
@@ -63,19 +74,19 @@ export const testimonials: Testimonial[] = [
     quote:
       "Working with Rose Hill Design Build has been a true partnership. They communicate clearly, have great attention to detail, and share the same goal of bringing the project's vision to life.",
     name: "Melissa Bryner",
-    title: "Partner",
+    company: "Sargenti Architects",
   },
   {
     quote:
-      "Rose Hill Design Build delivered our commercial space on time and exactly as we envisioned. From the first meeting their team was professional, organized, and genuinely invested in the outcome. We wouldn't trust anyone else with our next build.",
-    name: "Geo Balaskas",
-    title: "Client",
+      "I had the pleasure of working with Angelo on a very difficult project. My partners and I had just opened the Hotel X, in Toronto, when I was tasked with developing the Guerlain spa. Angelo's work was meticulous, and the environment he had to work in was challenging to almost impossible. Angelo had to construct the spa while the hotel was fully operational. Concrete transmits sound even better than water does. In spite of that, Angelo was able to accommodate our prohibitions from disturbing our guests, seemingly, magically. Today the Guerlain spa, at the Hotel X in Toronto, is their top producing spa in Canada.",
+    name: "Josh Durst",
+    company: "Library Hotel Collection",
   },
   {
     quote:
       "I've worked with a lot of contractors over the years and Rose Hill stands apart. They understood the demands of our project right away and kept things moving without ever cutting corners. The finished space speaks for itself.",
-    name: "Chris Mesner",
-    title: "Client",
+    name: "Billy Alexopoulos",
+    company: "ProPhase Ltd.",
   },
 ];
 
@@ -117,3 +128,77 @@ export const services: Service[] = [
       "Unique and complex builds that require specialized expertise and creative problem-solving.",
   },
 ];
+
+export const generalContracting: ServiceSection = {
+  heading: "General Contracting",
+  description:
+    "At Rose Hill Design Build, we bring your vision to life from the ground up. With a commitment to quality craftsmanship, transparent communication, and meticulous attention to detail, we manage every phase of your project so you don't have to. Whether it's a custom home, a commercial build, or a full-scale renovation, our experienced team works alongside you from blueprint to final walkthrough. Building is personal, and we treat every project that way.",
+  categories: [
+    {
+      name: "Turnkey Projects",
+      items: [
+        "Single-point responsibility from concept to completion",
+        "Full coordination of design, permitting, and construction",
+        "Budget and schedule management throughout all phases",
+        "Contractor and subcontractor procurement",
+        "Quality control and site supervision",
+        "Final inspections and client handover",
+      ],
+    },
+    {
+      name: "New Construction",
+      items: [
+        "Custom residential and commercial builds",
+        "Site evaluation and pre-construction planning",
+        "Foundation, structural, and envelope construction",
+        "Coordination of all trades and subcontractors",
+        "Code compliance and permitting",
+        "Construction administration and closeout",
+      ],
+    },
+    {
+      name: "Interior Fit-Outs",
+      items: [
+        "Commercial and retail tenant improvements",
+        "Office and workspace build-outs",
+        "Millwork, finishes, and fixture installation",
+        "MEP coordination and integration",
+        "Phased construction to minimize business disruption",
+        "Design-assist services for interior layouts",
+      ],
+    },
+    {
+      name: "Project Management",
+      items: [
+        "End-to-end project scheduling and oversight",
+        "Budget tracking and cost reporting",
+        "Subcontractor coordination and management",
+        "Risk identification and mitigation planning",
+        "Progress reporting and client communication",
+        "Quality assurance and punch list management",
+      ],
+    },
+    {
+      name: "Architectural Design & Value Engineering",
+      items: [
+        "Conceptual and schematic design services",
+        "Design-build coordination and documentation",
+        "Material and system substitution analysis",
+        "Cost-saving alternatives without compromising quality",
+        "Constructability reviews at all design phases",
+        "Alignment of design intent with budget constraints",
+      ],
+    },
+    {
+      name: "Consulting",
+      items: [
+        "Pre-construction feasibility assessments",
+        "Owner's representative services",
+        "Bid review and contractor vetting",
+        "Construction document and contract review",
+        "Site assessment and due diligence",
+        "Project recovery and troubleshooting for distressed builds",
+      ],
+    },
+  ],
+};

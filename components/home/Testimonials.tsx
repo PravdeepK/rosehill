@@ -28,7 +28,7 @@ export default function Testimonials() {
                   <p className="text-sm font-medium text-warm-white">
                     {t.name}
                   </p>
-                  <p className="text-xs text-medium-grey mt-1">{t.title}</p>
+                  <p className="text-xs mt-1" style={{ color: "#CB9E41" }}>{t.company}</p>
                 </footer>
               </blockquote>
             </Reveal>

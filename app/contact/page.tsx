@@ -1,4 +1,5 @@
 import SectionLabel from "@/components/ui/SectionLabel";
+import Reveal from "@/components/ui/Reveal";
 import ContactForm from "@/components/contact/ContactForm";
 
 export const metadata = {
@@ -10,9 +11,9 @@ export const metadata = {
 
 export default function ContactPage() {
   return (
-    <section className="pt-28 md:pt-32 pb-20 md:pb-24 px-6 lg:px-8">
+    <section className="pt-28 md:pt-32 pb-20 md:pb-24 px-6 lg:px-8 bg-warm-grey">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12 md:mb-16">
+        <Reveal className="text-center mb-12 md:mb-16">
           <SectionLabel>Contact</SectionLabel>
           <h1 className="text-3xl md:text-4xl font-light mt-4 mb-4">
             Connect With Us
@@ -21,9 +22,9 @@ export default function ContactPage() {
             Ready to start your project? Reach out and one of our team will be
             in touch.
           </p>
-        </div>
+        </Reveal>
 
-        <div className="max-w-2xl mx-auto mb-16 md:mb-20">
+        <Reveal delay={100} className="max-w-2xl mx-auto mb-16 md:mb-20">
           <ContactForm />
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 mt-8 text-sm text-medium-grey">
             <a
@@ -40,9 +41,9 @@ export default function ContactPage() {
               info@rosehilldesignbuild.com
             </a>
           </div>
-        </div>
+        </Reveal>
 
-        <div className="border-t border-warm-grey pt-12 md:pt-16">
+        <Reveal delay={120} className="border-t border-warm-grey pt-12 md:pt-16">
           <div className="text-center mb-10">
             <SectionLabel>Our Locations</SectionLabel>
           </div>
@@ -87,7 +88,7 @@ export default function ContactPage() {
               </div>
             </div>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );
