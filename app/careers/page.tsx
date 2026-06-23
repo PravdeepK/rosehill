@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import SectionLabel from "@/components/ui/SectionLabel";
+import Reveal from "@/components/ui/Reveal";
 import Button from "@/components/ui/Button";
 
 const inputClasses =
@@ -39,9 +40,9 @@ export default function CareersPage() {
   };
 
   return (
-    <section className="pt-28 md:pt-32 pb-20 md:pb-24 px-6 lg:px-8">
+    <section className="pt-28 md:pt-32 pb-20 md:pb-24 px-6 lg:px-8 bg-warm-grey">
       <div className="max-w-3xl mx-auto">
-        <div>
+        <Reveal>
           <SectionLabel>Careers</SectionLabel>
           <h1 className="text-3xl md:text-4xl font-light mt-4 mb-5 md:mb-6">
             Join Rose Hill
@@ -51,18 +52,19 @@ export default function CareersPage() {
             Subcontractors and tradespeople interested in working with us should
             fill out the pre-qualification form below.
           </p>
-        </div>
+        </Reveal>
 
         {submitted ? (
-          <div className="text-center py-12">
+          <Reveal className="text-center py-12">
             <p className="text-xl font-light">
               Thank you for your interest.
             </p>
             <p className="text-medium-grey mt-2">
               We will review your submission and be in touch.
             </p>
-          </div>
+          </Reveal>
         ) : (
+          <Reveal delay={100}>
           <form
             onSubmit={handleSubmit}
             className="space-y-5 md:space-y-6"
@@ -264,6 +266,7 @@ export default function CareersPage() {
               {loading ? "Sending…" : "Submit Application"}
             </Button>
           </form>
+          </Reveal>
         )}
       </div>
     </section>
