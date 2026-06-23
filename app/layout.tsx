@@ -42,11 +42,13 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: SITE_URL,
     siteName: SITE_NAME,
+    title: `${SITE_NAME} | ${PAGE_TITLE_TAGLINE}`,
     description: SITE_DESCRIPTION,
     images: [OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
+    title: `${SITE_NAME} | ${PAGE_TITLE_TAGLINE}`,
     description: SITE_DESCRIPTION,
     images: [OG_IMAGE],
   },
