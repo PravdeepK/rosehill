@@ -69,11 +69,57 @@ body {
   animation: hero-fade 1s ease-out forwards;
 }
 
+/* ── Portfolio map (/portfolio-map) ───────────────────────────────────────
+   Two animations with no existing equivalent, namespaced `map-*` to avoid any
+   collision. `map-pin-pulse` animates the SVG `r` presentation attribute (valid
+   CSS on <circle>); `map-cluster-bloom` scales each project "petal" in as the
+   city cluster opens. Both are disabled under `prefers-reduced-motion` below. */
+@keyframes map-pin-pulse {
+  0% {
+    r: 7;
+    opacity: 0.85;
+  }
+  100% {
+    r: 18;
+    opacity: 0;
+  }
+}
+
+@keyframes map-cluster-bloom {
+  from {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.map-pin-pulse {
+  animation: map-pin-pulse 1.8s ease-out infinite;
+}
+
+.map-cluster-bloom {
+  opacity: 0;
+  animation: map-cluster-bloom 0.35s ease forwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero-fade-up,
-  .hero-fade {
+  .hero-fade,
+  .map-cluster-bloom {
     animation: none;
     opacity: 1;
+  }
+
+  .map-cluster-bloom {
+    transform: none;
+  }
+
+  .map-pin-pulse {
+    animation: none;
+    opacity: 0;
   }
 }
 
