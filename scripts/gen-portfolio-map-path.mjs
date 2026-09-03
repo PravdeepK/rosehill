@@ -1,36 +1,39 @@
 /**
- * Regenerates the North America geometry baked into
- * `components/portfolio-map/PortfolioMap.tsx` (LAND_PATH, US_CA_BORDER,
- * US_MX_BORDER) and the projected city coordinates in
- * `lib/portfolioMapData.ts` (CITIES x/y).
+ * Regenerates the US + Canada geometry baked into
+ * `components/portfolio-map/PortfolioMap.tsx` (LAND_PATH, US_CA_BORDER) and the
+ * projected city coordinates in `lib/portfolioMapData.ts` (CITIES x/y).
  *
- * Source: Natural Earth 1:110m via world-atlas (public domain). The output is
+ * Source: Natural Earth 1:110m via world-atlas (public domain). Output is
  * static — the page ships no map library or tiles.
  *
  * One-off deps (not in package.json — install, run, discard):
  *   npm i -D world-atlas topojson-client topojson-simplify d3-geo
- *   node scripts/gen-portfolio-map-path.mjs [simplifyWeight]
- * then paste the printed strings/coords into the two files above.
+ *   node scripts/gen-portfolio-map-path.mjs [simplifyWeight] [latTop] [arcticLat]
+ * then paste the printed strings/coords into the two files above and adjust the
+ * CANADA / UNITED STATES <text> label positions by eye.
  *
- * Tunables: SIMPLIFY_WEIGHT (detail vs. size), BOX (lat/lon crop window),
- * STRETCH_X (mild horizontal stretch so the continent fills the 16:9-ish
- * panel), fitExtent box, and the projection parallels/rotation.
+ * Tunables: SIMPLIFY_WEIGHT (detail vs. size), LAT_TOP (north crop — raise to
+ * show more of Arctic Canada), ARCTIC_LAT (separate islands north of this are
+ * dropped, so Baffin/Victoria/Ellesmere don't clutter the top), BOX (lon/lat
+ * window), STRETCH_X (horizontal stretch so the landmass fills the panel),
+ * fitExtent box, projection parallels/rotation.
  */
 import { createRequire } from "node:module";
 import * as topojson from "topojson-client";
 import { presimplify, simplify } from "topojson-simplify";
-import { geoConicConformal, geoPath, geoArea } from "d3-geo";
+import { geoConicConformal, geoPath, geoArea, geoCentroid } from "d3-geo";
 
 const require = createRequire(import.meta.url);
 const raw = require("world-atlas/countries-110m.json");
 
 const SIMPLIFY_WEIGHT = Number(process.argv[2] ?? 3.5);
-const STRETCH_X = 1.4;
+const LAT_TOP = Number(process.argv[3] ?? 71);
+const ARCTIC_LAT = Number(process.argv[4] ?? 66);
+const STRETCH_X = 1.42;
 const CX = 390; // horizontal centre of the 780×450 viewBox
-const VIEW_W = 780;
 
-// ISO numeric ids: Canada, USA, Mexico + Central America.
-const NA = new Set([124, 840, 484, 320, 84, 340, 222, 558, 188, 591]);
+const CANADA = 124;
+const USA = 840;
 const idNum = (g) => Number(g.id);
 
 const topo = simplify(presimplify(raw), SIMPLIFY_WEIGHT * 1e-4);
@@ -38,10 +41,10 @@ const countries = topo.objects.countries;
 
 let merged = topojson.merge(
   topo,
-  countries.geometries.filter((g) => NA.has(idNum(g))),
+  countries.geometries.filter((g) => [CANADA, USA].includes(idNum(g))),
 );
 
-// Drop tiny rings: islands (Aleutians, Arctic, Caribbean) and small lakes.
+// Drop tiny rings (small islands, small lakes).
 const OUTER_MIN = 3e-4;
 const HOLE_MIN = 9e-5;
 merged = {
@@ -54,12 +57,22 @@ merged = {
     ]),
 };
 
-// Sutherland–Hodgman clip of every ring to a lon/lat window. The bottom edge
-// sits just below Panama so Central America isn't cut (which would leave a
-// stray bridge edge); the top trims the empty high Arctic.
+// Drop the far-Arctic islands (Baffin, Victoria, Ellesmere…) by centroid
+// latitude, keeping the mainland and southern islands (Newfoundland,
+// Vancouver Is.).
+merged = {
+  type: "MultiPolygon",
+  coordinates: merged.coordinates.filter(([o]) => {
+    const c = geoCentroid({ type: "Polygon", coordinates: [o] });
+    const area = geoArea({ type: "Polygon", coordinates: [o] });
+    return area > 0.02 || c[1] < ARCTIC_LAT; // keep the mainland regardless
+  }),
+};
+
+// Sutherland–Hodgman clip of every ring to a lon/lat window.
 const BOX = [
-  [-150, 6],
-  [-50, 58],
+  [-150, 23],
+  [-50, LAT_TOP],
 ];
 const lerp = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
 function clipRing(ring, [[x0, y0], [x1, y1]]) {
@@ -94,38 +107,37 @@ merged = {
     .filter((poly) => poly.length),
 };
 
-const border = (idA, idB) =>
-  topojson.mesh(topo, countries, (a, b) => {
-    const s = new Set([idNum(a), idNum(b)]);
-    return s.has(idA) && s.has(idB);
-  });
+const usCa = topojson.mesh(topo, countries, (a, b) => {
+  const s = new Set([idNum(a), idNum(b)]);
+  return s.has(USA) && s.has(CANADA);
+});
 
-const projection = geoConicConformal().parallels([24, 50]).rotate([98, 0]);
+const projection = geoConicConformal().parallels([26, 52]).rotate([98, 0]);
 projection.fitExtent(
   [
-    [222, 22],
-    [558, 428],
+    [206, 30],
+    [574, 420],
   ],
   merged,
 );
 projection.clipExtent([
-  [-200, -120],
-  [VIEW_W + 200, 600],
+  [-200, -160],
+  [980, 620],
 ]);
 const path = geoPath(projection);
 
-const stretchNum = (x) => CX + (x - CX) * STRETCH_X;
+const sx = (x) => CX + (x - CX) * STRETCH_X;
 const stretch = (d) =>
   d
     .replace(/-?\d+(\.\d+)?,-?\d+(\.\d+)?/g, (pair) => {
       const [x, y] = pair.split(",").map(Number);
-      return `${stretchNum(x).toFixed(1)},${y.toFixed(1)}`;
+      return `${sx(x).toFixed(1)},${y.toFixed(1)}`;
     })
     .replace(/(-?\d+)\.(\d)\d+/g, "$1.$2")
     .replace(/\.0(?=\D)/g, "");
 const projectCity = ([lon, lat]) => {
   const [x, y] = projection([lon, lat]);
-  return [stretchNum(x), y];
+  return [sx(x), y];
 };
 
 const cities = {
@@ -135,10 +147,11 @@ const cities = {
 };
 
 const land = stretch(path(merged));
-console.log(`SIMPLIFY_WEIGHT=${SIMPLIFY_WEIGHT}  LAND_PATH ${land.length} chars\n`);
+console.log(
+  `SIMPLIFY_WEIGHT=${SIMPLIFY_WEIGHT} LAT_TOP=${LAT_TOP}  LAND_PATH ${land.length} chars\n`,
+);
 console.log("=== LAND_PATH ===\n" + land);
-console.log("\n=== US_CA_BORDER ===\n" + stretch(path(border(840, 124))));
-console.log("\n=== US_MX_BORDER ===\n" + stretch(path(border(840, 484))));
+console.log("\n=== US_CA_BORDER ===\n" + stretch(path(usCa)));
 console.log("\n=== CITIES (paste x/y into lib/portfolioMapData.ts) ===");
 for (const [k, ll] of Object.entries(cities)) {
   const [x, y] = projectCity(ll);
