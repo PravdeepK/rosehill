@@ -35,9 +35,9 @@ export interface PortfolioProject {
 }
 
 export const CITIES: PortfolioCity[] = [
-  { key: "gta", name: "Greater Toronto Area", shortLabel: "TORONTO", x: 608.5, y: 146.2, labelDir: "right" },
-  { key: "boston", name: "Boston", shortLabel: "BOSTON", x: 703.6, y: 164.9, labelDir: "left" },
-  { key: "miami", name: "Miami", shortLabel: "MIAMI", x: 599.1, y: 405.2, labelDir: "right" },
+  { key: "gta", name: "Greater Toronto Area", shortLabel: "TORONTO", x: 469, y: 158, labelDir: "left" },
+  { key: "boston", name: "Boston", shortLabel: "BOSTON", x: 528, y: 157, labelDir: "right" },
+  { key: "miami", name: "Miami", shortLabel: "MIAMI", x: 496, y: 277, labelDir: "right" },
 ];
 
 export const CATEGORIES: ProjectCategory[] = [
