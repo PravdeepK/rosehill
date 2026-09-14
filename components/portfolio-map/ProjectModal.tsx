@@ -258,7 +258,7 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
                 aria-current={i === activeIndex}
                 // Transparent border on the inactive ones so selecting a
                 // thumbnail recolours it rather than reflowing the strip.
-                className={`relative h-12 w-20 shrink-0 cursor-pointer overflow-hidden border-2 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-2 ${
+                className={`group relative h-12 w-20 shrink-0 cursor-pointer overflow-hidden border-2 transition-[border-color,opacity] duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-2 ${
                   i === activeIndex
                     ? "border-gold"
                     : "border-transparent opacity-60 hover:opacity-100"
@@ -270,7 +270,7 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
                   aria-hidden="true"
                   fill
                   sizes="80px"
-                  className="object-cover"
+                  className="object-cover transition-transform duration-300 ease-out motion-safe:group-hover:scale-[1.08] motion-safe:group-focus-visible:scale-[1.08]"
                 />
               </button>
             ))}
