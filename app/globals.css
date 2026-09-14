@@ -7,8 +7,11 @@
   --color-gold-contrast: #5a4620;
   --color-warm-white: #f5f4f0;
   --color-warm-grey: #e8e6e1;
-  --color-light-grey: #f2f1ee;
   --color-dark: #393A3B;
+  /* Form error text. Deep burnt sienna rather than a generic red so it still
+     sits in the warm palette. The inline #b8963e it replaces was 2.25:1 on
+     warm-grey — this is 6.6:1 there and 7.5:1 on warm-white. */
+  --color-error: #8c2f1a;
   --color-medium-grey: #606263;
   --font-sans: var(--font-dm-sans), system-ui, sans-serif;
 }

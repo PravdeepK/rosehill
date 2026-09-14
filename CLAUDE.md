@@ -86,7 +86,7 @@ components/
   intro/     IntroGate (splash held until hero video is sharp; see lib/heroReady.ts)
   portfolio-map/   PortfolioMapExperience, PortfolioMap, ProjectModal,
                    PortfolioProjectCard, helpers.ts   (see §6)
-  services/  ServicesTabs  (file name is legacy — it renders a static card grid)
+  services/  ServicesCards  (static card grid for lib/data.ts `generalContracting`)
   contact/   ContactForm, MapEmbed (MapEmbed is currently unused)
   seo/       JsonLd (Organization / GeneralContractor structured data)
   ui/        Button, SectionLabel, Reveal   (shared primitives — prefer these)
@@ -121,8 +121,9 @@ tokens in `app/globals.css` — use the semantic names:
 
 ```
 gold  gold-light  gold-contrast   (gold-contrast = AA-safe gold for text on light bg)
-warm-white  warm-grey  light-grey
+warm-white  warm-grey
 dark  medium-grey
+error                             (form error text — AA on warm-white and warm-grey)
 ```
 
 Never hardcode a hex that a token already covers. New shared animations go in
@@ -278,17 +279,16 @@ Backlog of rough edges found by reading the code. Not all verified end-to-end;
 treat as leads, confirm before acting.
 
 1. **Brand fonts not wired** — see §7.
-2. **`ServicesTabs` is misnamed** — it renders a static card grid, not tabs
-   (component is literally `ServicesCards`).
-3. **Hardcoded colors** — Testimonials company text and form error text use
-   inline hex (`#CB9E41`, `#b8963e`) instead of tokens. `#b8963e` has no token
-   of its own; `#CB9E41` is just `gold`. `--color-light-grey` is defined but
-   unused.
-4. **Careers metadata** — description in `careers/layout.tsx` (authoritative)
+2. **Careers metadata** — description in `careers/layout.tsx` (authoritative)
    differs from the visible page copy. Minor.
-5. **No test suite, no CI** in the repo. No error monitoring / analytics.
-6. **`sameAs: []`** in `JsonLd.tsx` — no social profiles in structured data.
+3. **No test suite, no CI** in the repo. No error monitoring / analytics.
+4. **`sameAs: []`** in `JsonLd.tsx` — no social profiles in structured data.
    Needs real profile URLs from the client, or drop the key.
+5. **Conditional UI is unaudited.** The axe pass only sees rendered DOM, so
+   states that need an interaction — form error messages, empty filter results,
+   submitted-form confirmations — have never been contrast-checked. The form
+   error colour turned out to be 2.25:1 for exactly this reason. Worth driving
+   a failed submit before trusting a clean scan.
 
 ---
 

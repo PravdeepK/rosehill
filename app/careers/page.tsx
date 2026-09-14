@@ -249,11 +249,7 @@ export default function CareersPage() {
             </div>
 
             {error && (
-              <p
-                role="alert"
-                className="text-sm"
-                style={{ color: "#b8963e" }}
-              >
+              <p role="alert" className="text-sm text-error">
                 {error}
               </p>
             )}
