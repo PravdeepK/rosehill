@@ -1,0 +1,738 @@
+{
+  "coral-gables": [
+    {
+      "src": "/images/projects/coral-gables/coral-gables-1.webp",
+      "width": 1155,
+      "height": 750
+    },
+    {
+      "src": "/images/projects/coral-gables/coral-gables-2.webp",
+      "width": 850,
+      "height": 640
+    },
+    {
+      "src": "/images/projects/coral-gables/coral-gables-3.webp",
+      "width": 1440,
+      "height": 1080
+    },
+    {
+      "src": "/images/projects/coral-gables/coral-gables-4.webp",
+      "width": 890,
+      "height": 614
+    },
+    {
+      "src": "/images/projects/coral-gables/coral-gables-5.webp",
+      "width": 565,
+      "height": 750
+    },
+    {
+      "src": "/images/projects/coral-gables/coral-gables-6.webp",
+      "width": 565,
+      "height": 595
+    },
+    {
+      "src": "/images/projects/coral-gables/coral-gables-7.webp",
+      "width": 565,
+      "height": 595
+    },
+    {
+      "src": "/images/projects/coral-gables/coral-gables-8.webp",
+      "width": 1352,
+      "height": 1018
+    },
+    {
+      "src": "/images/projects/coral-gables/coral-gables-9.webp",
+      "width": 1352,
+      "height": 1018
+    },
+    {
+      "src": "/images/projects/coral-gables/coral-gables-10.webp",
+      "width": 1352,
+      "height": 1018
+    },
+    {
+      "src": "/images/projects/coral-gables/coral-gables-11.webp",
+      "width": 1352,
+      "height": 1018
+    },
+    {
+      "src": "/images/projects/coral-gables/coral-gables-12.webp",
+      "width": 533,
+      "height": 595
+    }
+  ],
+  "crossiron-mills": [
+    {
+      "src": "/images/projects/crossiron-mills/crossiron-mills-1.webp",
+      "width": 960,
+      "height": 532
+    },
+    {
+      "src": "/images/projects/crossiron-mills/crossiron-mills-2.webp",
+      "width": 1600,
+      "height": 1204
+    },
+    {
+      "src": "/images/projects/crossiron-mills/crossiron-mills-3.webp",
+      "width": 1600,
+      "height": 1204
+    },
+    {
+      "src": "/images/projects/crossiron-mills/crossiron-mills-4.webp",
+      "width": 1600,
+      "height": 1204
+    },
+    {
+      "src": "/images/projects/crossiron-mills/crossiron-mills-5.webp",
+      "width": 1600,
+      "height": 1204
+    },
+    {
+      "src": "/images/projects/crossiron-mills/crossiron-mills-6.webp",
+      "width": 1600,
+      "height": 1204
+    },
+    {
+      "src": "/images/projects/crossiron-mills/crossiron-mills-7.webp",
+      "width": 1600,
+      "height": 1204
+    },
+    {
+      "src": "/images/projects/crossiron-mills/crossiron-mills-8.webp",
+      "width": 1600,
+      "height": 1204
+    },
+    {
+      "src": "/images/projects/crossiron-mills/crossiron-mills-9.webp",
+      "width": 1600,
+      "height": 1204
+    }
+  ],
+  "digicast": [
+    {
+      "src": "/images/projects/digicast/digicast-1.webp",
+      "width": 2000,
+      "height": 1506
+    },
+    {
+      "src": "/images/projects/digicast/digicast-2.webp",
+      "width": 2000,
+      "height": 1506
+    },
+    {
+      "src": "/images/projects/digicast/digicast-3.webp",
+      "width": 2000,
+      "height": 1506
+    },
+    {
+      "src": "/images/projects/digicast/digicast-4.webp",
+      "width": 2000,
+      "height": 1506
+    },
+    {
+      "src": "/images/projects/digicast/digicast-5.webp",
+      "width": 2000,
+      "height": 1506
+    },
+    {
+      "src": "/images/projects/digicast/digicast-6.webp",
+      "width": 2000,
+      "height": 1506
+    },
+    {
+      "src": "/images/projects/digicast/digicast-7.webp",
+      "width": 1506,
+      "height": 2000
+    }
+  ],
+  "elm-spa": [
+    {
+      "src": "/images/projects/elm-spa/elm-spa-1.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/elm-spa/elm-spa-2.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/elm-spa/elm-spa-3.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/elm-spa/elm-spa-4.webp",
+      "width": 791,
+      "height": 1406
+    },
+    {
+      "src": "/images/projects/elm-spa/elm-spa-5.webp",
+      "width": 690,
+      "height": 895
+    },
+    {
+      "src": "/images/projects/elm-spa/elm-spa-6.webp",
+      "width": 640,
+      "height": 895
+    },
+    {
+      "src": "/images/projects/elm-spa/elm-spa-7.webp",
+      "width": 640,
+      "height": 895
+    },
+    {
+      "src": "/images/projects/elm-spa/elm-spa-8.webp",
+      "width": 1200,
+      "height": 685
+    },
+    {
+      "src": "/images/projects/elm-spa/elm-spa-9.webp",
+      "width": 1200,
+      "height": 685
+    },
+    {
+      "src": "/images/projects/elm-spa/elm-spa-10.webp",
+      "width": 690,
+      "height": 460
+    },
+    {
+      "src": "/images/projects/elm-spa/elm-spa-11.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/elm-spa/elm-spa-12.webp",
+      "width": 1600,
+      "height": 1200
+    },
+    {
+      "src": "/images/projects/elm-spa/elm-spa-13.webp",
+      "width": 1600,
+      "height": 1200
+    },
+    {
+      "src": "/images/projects/elm-spa/elm-spa-14.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/elm-spa/elm-spa-15.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/elm-spa/elm-spa-16.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/elm-spa/elm-spa-17.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/elm-spa/elm-spa-18.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/elm-spa/elm-spa-19.webp",
+      "width": 1600,
+      "height": 1200
+    },
+    {
+      "src": "/images/projects/elm-spa/elm-spa-20.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/elm-spa/elm-spa-21.webp",
+      "width": 1200,
+      "height": 1600
+    }
+  ],
+  "isaia": [
+    {
+      "src": "/images/projects/isaia/isaia-1.webp",
+      "width": 1920,
+      "height": 1408
+    },
+    {
+      "src": "/images/projects/isaia/isaia-2.webp",
+      "width": 1477,
+      "height": 2000
+    },
+    {
+      "src": "/images/projects/isaia/isaia-3.webp",
+      "width": 1920,
+      "height": 1192
+    },
+    {
+      "src": "/images/projects/isaia/isaia-4.webp",
+      "width": 1920,
+      "height": 1235
+    },
+    {
+      "src": "/images/projects/isaia/isaia-5.webp",
+      "width": 1920,
+      "height": 1235
+    },
+    {
+      "src": "/images/projects/isaia/isaia-6.webp",
+      "width": 1920,
+      "height": 1159
+    },
+    {
+      "src": "/images/projects/isaia/isaia-7.webp",
+      "width": 1125,
+      "height": 917
+    },
+    {
+      "src": "/images/projects/isaia/isaia-8.webp",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "src": "/images/projects/isaia/isaia-9.webp",
+      "width": 1360,
+      "height": 908
+    },
+    {
+      "src": "/images/projects/isaia/isaia-10.webp",
+      "width": 750,
+      "height": 1020
+    }
+  ],
+  "pocono-mountains": [
+    {
+      "src": "/images/projects/pocono-mountains/pocono-mountains-1.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/pocono-mountains/pocono-mountains-2.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/pocono-mountains/pocono-mountains-3.webp",
+      "width": 1000,
+      "height": 750
+    },
+    {
+      "src": "/images/projects/pocono-mountains/pocono-mountains-4.webp",
+      "width": 1280,
+      "height": 620
+    },
+    {
+      "src": "/images/projects/pocono-mountains/pocono-mountains-5.webp",
+      "width": 1280,
+      "height": 620
+    },
+    {
+      "src": "/images/projects/pocono-mountains/pocono-mountains-6.webp",
+      "width": 506,
+      "height": 750
+    },
+    {
+      "src": "/images/projects/pocono-mountains/pocono-mountains-7.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/pocono-mountains/pocono-mountains-8.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/pocono-mountains/pocono-mountains-9.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/pocono-mountains/pocono-mountains-10.webp",
+      "width": 1200,
+      "height": 1600
+    }
+  ],
+  "round-rock": [
+    {
+      "src": "/images/projects/round-rock/round-rock-1.webp",
+      "width": 1000,
+      "height": 666
+    },
+    {
+      "src": "/images/projects/round-rock/round-rock-2.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/round-rock/round-rock-3.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/round-rock/round-rock-4.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/round-rock/round-rock-5.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/round-rock/round-rock-6.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/round-rock/round-rock-7.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/round-rock/round-rock-8.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/round-rock/round-rock-9.webp",
+      "width": 1000,
+      "height": 666
+    },
+    {
+      "src": "/images/projects/round-rock/round-rock-10.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/round-rock/round-rock-11.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/round-rock/round-rock-12.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/round-rock/round-rock-13.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/round-rock/round-rock-14.webp",
+      "width": 1200,
+      "height": 1600
+    }
+  ],
+  "salon-city": [
+    {
+      "src": "/images/projects/salon-city/salon-city-1.webp",
+      "width": 1440,
+      "height": 1800
+    },
+    {
+      "src": "/images/projects/salon-city/salon-city-2.webp",
+      "width": 765,
+      "height": 1020
+    },
+    {
+      "src": "/images/projects/salon-city/salon-city-3.webp",
+      "width": 765,
+      "height": 1020
+    },
+    {
+      "src": "/images/projects/salon-city/salon-city-4.webp",
+      "width": 765,
+      "height": 1020
+    },
+    {
+      "src": "/images/projects/salon-city/salon-city-5.webp",
+      "width": 765,
+      "height": 1020
+    },
+    {
+      "src": "/images/projects/salon-city/salon-city-6.webp",
+      "width": 569,
+      "height": 967
+    },
+    {
+      "src": "/images/projects/salon-city/salon-city-7.webp",
+      "width": 769,
+      "height": 1020
+    },
+    {
+      "src": "/images/projects/salon-city/salon-city-8.webp",
+      "width": 1440,
+      "height": 1266
+    },
+    {
+      "src": "/images/projects/salon-city/salon-city-9.webp",
+      "width": 765,
+      "height": 660
+    },
+    {
+      "src": "/images/projects/salon-city/salon-city-10.webp",
+      "width": 765,
+      "height": 660
+    }
+  ],
+  "sevierville": [
+    {
+      "src": "/images/projects/sevierville/sevierville-1.webp",
+      "width": 2000,
+      "height": 1500
+    },
+    {
+      "src": "/images/projects/sevierville/sevierville-2.webp",
+      "width": 2000,
+      "height": 1500
+    },
+    {
+      "src": "/images/projects/sevierville/sevierville-3.webp",
+      "width": 2000,
+      "height": 1500
+    },
+    {
+      "src": "/images/projects/sevierville/sevierville-4.webp",
+      "width": 2000,
+      "height": 1500
+    },
+    {
+      "src": "/images/projects/sevierville/sevierville-5.webp",
+      "width": 1500,
+      "height": 2000
+    },
+    {
+      "src": "/images/projects/sevierville/sevierville-6.webp",
+      "width": 2000,
+      "height": 1413
+    },
+    {
+      "src": "/images/projects/sevierville/sevierville-7.webp",
+      "width": 2000,
+      "height": 1500
+    },
+    {
+      "src": "/images/projects/sevierville/sevierville-8.webp",
+      "width": 2000,
+      "height": 1500
+    },
+    {
+      "src": "/images/projects/sevierville/sevierville-9.webp",
+      "width": 1500,
+      "height": 2000
+    }
+  ],
+  "shn-intake": [
+    {
+      "src": "/images/projects/shn-intake/shn-intake-1.webp",
+      "width": 2000,
+      "height": 1125
+    },
+    {
+      "src": "/images/projects/shn-intake/shn-intake-2.webp",
+      "width": 1333,
+      "height": 2000
+    },
+    {
+      "src": "/images/projects/shn-intake/shn-intake-3.webp",
+      "width": 2000,
+      "height": 1125
+    },
+    {
+      "src": "/images/projects/shn-intake/shn-intake-4.webp",
+      "width": 2000,
+      "height": 1344
+    },
+    {
+      "src": "/images/projects/shn-intake/shn-intake-5.webp",
+      "width": 2000,
+      "height": 1755
+    }
+  ],
+  "shn-walls": [
+    {
+      "src": "/images/projects/shn-walls/shn-walls-1.webp",
+      "width": 1600,
+      "height": 1200
+    },
+    {
+      "src": "/images/projects/shn-walls/shn-walls-2.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/shn-walls/shn-walls-3.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/shn-walls/shn-walls-4.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/shn-walls/shn-walls-5.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/shn-walls/shn-walls-6.webp",
+      "width": 1600,
+      "height": 1200
+    }
+  ],
+  "shn-windows": [
+    {
+      "src": "/images/projects/shn-windows/shn-windows-1.webp",
+      "width": 1600,
+      "height": 1200
+    },
+    {
+      "src": "/images/projects/shn-windows/shn-windows-2.webp",
+      "width": 1600,
+      "height": 1200
+    },
+    {
+      "src": "/images/projects/shn-windows/shn-windows-3.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/shn-windows/shn-windows-4.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/shn-windows/shn-windows-5.webp",
+      "width": 1600,
+      "height": 1200
+    },
+    {
+      "src": "/images/projects/shn-windows/shn-windows-6.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/shn-windows/shn-windows-7.webp",
+      "width": 1600,
+      "height": 1200
+    },
+    {
+      "src": "/images/projects/shn-windows/shn-windows-8.webp",
+      "width": 1600,
+      "height": 1200
+    },
+    {
+      "src": "/images/projects/shn-windows/shn-windows-9.webp",
+      "width": 1600,
+      "height": 1200
+    },
+    {
+      "src": "/images/projects/shn-windows/shn-windows-10.webp",
+      "width": 1600,
+      "height": 1200
+    },
+    {
+      "src": "/images/projects/shn-windows/shn-windows-11.webp",
+      "width": 1600,
+      "height": 1200
+    },
+    {
+      "src": "/images/projects/shn-windows/shn-windows-12.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/shn-windows/shn-windows-13.webp",
+      "width": 1600,
+      "height": 1200
+    },
+    {
+      "src": "/images/projects/shn-windows/shn-windows-14.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/shn-windows/shn-windows-15.webp",
+      "width": 1600,
+      "height": 1200
+    },
+    {
+      "src": "/images/projects/shn-windows/shn-windows-16.webp",
+      "width": 1600,
+      "height": 1200
+    },
+    {
+      "src": "/images/projects/shn-windows/shn-windows-17.webp",
+      "width": 1600,
+      "height": 1200
+    },
+    {
+      "src": "/images/projects/shn-windows/shn-windows-18.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/shn-windows/shn-windows-19.webp",
+      "width": 1600,
+      "height": 1200
+    },
+    {
+      "src": "/images/projects/shn-windows/shn-windows-20.webp",
+      "width": 1600,
+      "height": 1200
+    }
+  ],
+  "toronto-showroom": [
+    {
+      "src": "/images/projects/toronto-showroom/toronto-showroom-1.webp",
+      "width": 2000,
+      "height": 1499
+    },
+    {
+      "src": "/images/projects/toronto-showroom/toronto-showroom-2.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/toronto-showroom/toronto-showroom-3.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/toronto-showroom/toronto-showroom-4.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/toronto-showroom/toronto-showroom-5.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/toronto-showroom/toronto-showroom-6.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/toronto-showroom/toronto-showroom-7.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/toronto-showroom/toronto-showroom-8.webp",
+      "width": 1200,
+      "height": 1600
+    },
+    {
+      "src": "/images/projects/toronto-showroom/toronto-showroom-9.webp",
+      "width": 1200,
+      "height": 975
+    }
+  ]
+}

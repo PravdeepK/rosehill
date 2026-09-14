@@ -58,3 +58,8 @@ brief.md
 # large local-only media — the hero streams from Cloudflare Stream, so no
 # video files are tracked; these are local-only masters/encodes
 /public/videos/*
+
+# client's raw project photos — masters only; optimize-project-photos.mjs writes
+# the committed web copies to public/images/projects/
+/rosehill-project-photos/
+/rosehill-project-photos.zip

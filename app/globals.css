@@ -69,11 +69,116 @@ body {
   animation: hero-fade 1s ease-out forwards;
 }
 
+/* ── Portfolio map (/portfolio-map) ───────────────────────────────────────
+   Two animations with no existing equivalent, namespaced `map-*` to avoid any
+   collision. `map-pin-pulse` expands the ring around a zoomed city's hub;
+   `map-cluster-bloom` scales each project "petal" in as the city cluster
+   opens. Both are disabled under `prefers-reduced-motion` below.
+
+   The pulse scales rather than animating `r`: `r` is a geometry property, so
+   every frame invalidated layout — on an infinite loop, for the whole time a
+   city was open. `scale` is paint-only. 2.571 is the old 18/7 ratio, and
+   non-scaling-stroke on the circle keeps the ring a hairline as it grows,
+   which animating `r` used to give for free. */
+@keyframes map-pin-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(2.571);
+    opacity: 0;
+  }
+}
+
+@keyframes map-cluster-bloom {
+  from {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.map-pin-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: map-pin-pulse 1.8s ease-out infinite;
+}
+
+.map-cluster-bloom {
+  opacity: 0;
+  animation: map-cluster-bloom 0.35s ease forwards;
+}
+
+/* Held on the <svg> only while the rAF viewBox tween is running.
+
+   Animating `viewBox` rescales the whole map every frame, so nothing the
+   browser rasterised last frame can be reused — including the landmass drop
+   shadow, a 16px-sigma Gaussian blur over the full continent. Recomputing that
+   ~36 times across a 600ms zoom is what made the tween stutter on both phone
+   and desktop. The shadow is a soft ambient cue (0.14 alpha); dropping it while
+   the map is in motion isn't perceptible, and it returns the moment the zoom
+   lands. optimizeSpeed drops antialiasing on the coastline for the same window
+   — the single biggest rasterisation cost after the filter. */
+.map-animating .map-land-shadow {
+  filter: none;
+}
+
+.map-animating .map-land {
+  shape-rendering: optimizeSpeed;
+}
+
+/* Map type is sized in viewBox units, so it shrinks with the panel: the 10px
+   city chips render at ~7px once the 780-unit full view is painted into a
+   phone-width box. Below `md` that fine print is dropped and the city pills
+   under the map carry the same labels at a readable size. `visibility` rather
+   than `display` so <text> keeps its layout box and stays measurable by
+   useTextWidth() across a rotate/resize. Keep this breakpoint in sync with
+   COMPACT_QUERY in components/portfolio-map/PortfolioMap.tsx. */
+@media (max-width: 767px) {
+  .map-fine-print {
+    visibility: hidden;
+  }
+}
+
+/* Petal names are a pointer affordance with no touch equivalent — a tap opens
+   the project outright. Hiding them on touch also avoids the emulated-hover
+   label that would otherwise be stranded behind the modal. */
+@media (hover: none) {
+  .map-hover-label {
+    visibility: hidden;
+  }
+}
+
+/* An SVG node carrying tabindex isn't a natively focusable control, so Chrome
+   paints its default blue ring on a plain click where a <button> would not.
+   Suppress that for pointer focus only — `:focus-visible` still gets the gold
+   ring from the utilities on the element.
+   Not Tailwind's `focus:outline-none`: that sets `--tw-outline-style: none`,
+   which `focus-visible:outline-2` then reads back as its own outline-style,
+   cancelling the keyboard ring along with the mouse one. */
+.map-node:focus:not(:focus-visible) {
+  outline: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero-fade-up,
-  .hero-fade {
+  .hero-fade,
+  .map-cluster-bloom {
     animation: none;
     opacity: 1;
+  }
+
+  .map-cluster-bloom {
+    transform: none;
+  }
+
+  .map-pin-pulse {
+    animation: none;
+    opacity: 0;
   }
 }
 
