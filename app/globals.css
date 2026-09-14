@@ -113,6 +113,37 @@ body {
   animation: map-cluster-bloom 0.35s ease forwards;
 }
 
+/* Project modal entrance. The backdrop fades while the panel lifts a few
+   pixels, so opening a project reads as a move rather than a hard cut. Entry
+   only — the modal unmounts on close, so there's nothing left to animate out. */
+@keyframes map-modal-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes map-modal-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.map-modal-backdrop {
+  animation: map-modal-backdrop-in 0.2s ease-out both;
+}
+
+.map-modal-panel {
+  animation: map-modal-panel-in 0.28s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
 /* Held on the <svg> only while the rAF viewBox tween is running.
 
    Animating `viewBox` rescales the whole map every frame, so nothing the
@@ -179,6 +210,11 @@ body {
   .map-pin-pulse {
     animation: none;
     opacity: 0;
+  }
+
+  .map-modal-backdrop,
+  .map-modal-panel {
+    animation: none;
   }
 }
 

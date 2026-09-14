@@ -122,7 +122,7 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-dark/70 p-4 sm:p-6"
+      className="map-modal-backdrop fixed inset-0 z-[100] flex items-center justify-center bg-dark/70 p-4 sm:p-6"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -134,7 +134,7 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
         aria-labelledby={nameId}
         // dvh, not vh: iOS Safari's vh ignores its own retracting chrome, which
         // pushed the close button off-screen on a phone.
-        className="relative flex max-h-[88dvh] w-full max-w-[640px] flex-col overflow-auto bg-warm-white"
+        className="map-modal-panel relative flex max-h-[88dvh] w-full max-w-[640px] flex-col overflow-auto bg-warm-white"
       >
         <button
           ref={closeRef}
