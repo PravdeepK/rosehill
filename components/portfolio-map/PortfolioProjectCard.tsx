@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { CARD_GRADIENT, type PortfolioProject } from "@/lib/portfolioMapData";
 import { initials } from "./helpers";
 
@@ -7,16 +8,17 @@ interface PortfolioProjectCardProps {
 }
 
 /**
- * Grid card for the listings section. Mirrors the approved prototype's card:
- * gradient placeholder image with an initials watermark, a "Demo placeholder"
- * tag for entries with no real project yet, and a hover-filled "View Project"
- * CTA. The whole card is a real <button> so it's keyboard-reachable — real
- * photography (via next/image) replaces the gradient once available (plan §7).
+ * Grid card for the listings section. Shows the project's first photo when it
+ * has one; entries still awaiting photography (`images: []`) keep the original
+ * gradient-plus-initials treatment. The whole card is a real <button> so it's
+ * keyboard-reachable.
  */
 export function PortfolioProjectCard({
   project,
   onOpen,
 }: PortfolioProjectCardProps) {
+  const cover = project.images[0];
+
   return (
     <button
       type="button"
@@ -27,17 +29,27 @@ export function PortfolioProjectCard({
         className="relative flex aspect-[4/3] items-end overflow-hidden"
         style={{ background: CARD_GRADIENT[project.category] }}
       >
+        {cover ? (
+          <Image
+            src={cover.src}
+            alt={`${project.name}, ${project.location}`}
+            fill
+            sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+          />
+        ) : (
+          <span
+            aria-hidden="true"
+            className="absolute -bottom-6 -right-1.5 text-[96px] font-bold leading-none tracking-tight text-white/10"
+          >
+            {initials(project.name)}
+          </span>
+        )}
         {project.placeholder && (
-          <span className="absolute left-3 top-3 bg-warm-white/85 px-2 py-1 text-[9px] uppercase tracking-[0.14em] text-dark">
+          <span className="absolute left-3 top-3 z-10 bg-warm-white/85 px-2 py-1 text-[9px] uppercase tracking-[0.14em] text-dark">
             Demo placeholder
           </span>
         )}
-        <span
-          aria-hidden="true"
-          className="absolute -bottom-6 -right-1.5 text-[96px] font-bold leading-none tracking-tight text-white/10"
-        >
-          {initials(project.name)}
-        </span>
         <span className="pointer-events-none absolute inset-0 border border-transparent transition-colors duration-300 group-hover:border-gold" />
       </div>
 

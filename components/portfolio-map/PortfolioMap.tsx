@@ -1,8 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  CATEGORY_COLOR,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type RefObject,
+} from "react";
+import {
   CITIES,
   PROJECTS,
   type PortfolioCity,
@@ -18,24 +25,61 @@ interface PortfolioMapProps {
 
 type ViewBox = { x: number; y: number; w: number; h: number };
 
+// The page is prerendered, and useLayoutEffect is a no-op (and warns) on the
+// server — measurement only ever matters in the browser.
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
 const FULL_VIEW: ViewBox = { x: 0, y: 0, w: 780, h: 450 };
+const MAP_ASPECT = 450 / 780;
 const ZOOM_W = 320;
-const ZOOM_H = 184.6;
+// A phone paints the cluster into ~300px, where the desktop zoom leaves each
+// petal about 15px across — half a usable tap target. Zooming harder (rather
+// than scaling the artwork up inside a fixed viewBox, which would collide the
+// petals with each other) magnifies everything at once: at this width the
+// petals clear 44px on the narrowest phones and stay well apart.
+const COMPACT_ZOOM_W = 200;
 const PETAL_DIST = 42;
 const LABEL_DIST = 60;
 const ANIM_MS = 600;
 
+// Touch target radii for the transparent hit circles. Sized in viewBox units,
+// so they hold at every zoom: 14 stays clear of the 42-unit petal spacing, and
+// 18 of the 43 units between the map's closest pair of cities (Toronto and the
+// Poconos). Both are generous on a pointer, which is harmless.
+const PETAL_HIT_R = 14;
+const CITY_HIT_R = 18;
+
+// Drives the zoom above. `md` — the same breakpoint globals.css uses to drop
+// the map's fine print; keep the two together.
+const COMPACT_QUERY = "(max-width: 767px)";
+
+function subscribeCompact(onChange: () => void) {
+  const mq = window.matchMedia(COMPACT_QUERY);
+  mq.addEventListener("change", onChange);
+  return () => mq.removeEventListener("change", onChange);
+}
+const readCompact = () => window.matchMedia(COMPACT_QUERY).matches;
+// Prerendered HTML has no viewport to measure; the subscription corrects this
+// on mount, before which the map is in its unzoomed full view either way.
+const readCompactOnServer = () => false;
+
 // Real US + Canada outline — Natural Earth 1:110m (public domain), projected to
-// the 780×450 viewBox (d3-geo conic conformal, cropped to ~lat 23–71 / lon
-// -150–-50, far-Arctic islands dropped, mild horizontal stretch), then
-// simplified. Static data: no map library or tiles at runtime. Regenerate with
-// `scripts/gen-portfolio-map-path.mjs`.
+// the 780×450 viewBox (d3-geo conic conformal, cropped to lat 23–60 / lon
+// -141–-50), then simplified. Both crops sit on real lines: the west edge is
+// the 141st meridian (the Alaska/Yukon border, so Alaska drops out along a true
+// border rather than an arbitrary diagonal), and the north edge is 60°N (the
+// provinces/territories boundary). Cropping the empty Arctic is also what lets
+// the landmass span x 108–672 at *true aspect* — an earlier revision stretched
+// x by 1.42 to fill the panel, which visibly skewed the continent.
+// Static data: no map library or tiles at runtime.
+// Regenerate with `scripts/gen-portfolio-map-path.mjs`.
 const LAND_PATH =
-  "M216.3,71.2L221.5,75.1L224.8,80.4L228.1,82.2L233.1,80.3L238.8,79.4L243.6,81.8L250.7,80.1L257.6,79.8L258.5,83.5L262,82.5L264.6,79.2L266.6,80.6L269.7,88.7L276.8,84.6L274.8,90.5L279.9,90.2L282.2,88.2L286.5,89.5L291.1,93.8L299.1,98L304,100.1L308,100.1L312.2,104.7L305.7,107.7L312.5,110.2L323.6,110.5L327.3,109.5L330.8,114.5L335.9,111L332.3,107.4L335.3,105L340.2,105L343.4,104.5L346.4,106.5L350,110.9L354.6,110.5L361.5,114.2L367.9,113.1L373.9,113.3L373.4,108.6L377,107.2L383.3,109.8L383.5,117L385.9,110.9L389.1,111L390.5,103.2L386.1,98.5L381.5,95.4L381.6,88.2L396,87.8L400.3,94L397.2,98.1L404.6,99.3L405.5,107.2L410,100.8L415.4,105.4L415.1,111.1L419.9,115.9L423.2,110.1L424.8,103.3L423.4,94.8L428.9,94.8L434.8,95.3L440.9,98.5L442.1,102.2L440.2,106.6L444.1,110.2L444.5,113.9L437.7,120.1L432.1,121.9L427.3,120.1L426.8,123.9L423.7,130.5L423,133.8L418.6,139.1L412.2,140L409,143.3L409.3,148L404,149.2L398.7,155.2L394,163.4L392.4,169L392.6,177.1L400.2,178L403,184.4L405.9,189.5L413.1,187.8L423.3,190.1L429,192.3L433.4,195.2L440.4,196.5L446.7,198.8L455.8,198.2L461.8,198.1L462.4,204L465.8,210.5L471.8,217.3L482.1,222.4L485.9,219.6L486.9,212.4L480.9,202.5L476,199.5L483.7,195.2L488.2,189.5L489.6,184.4L487.6,180L482.2,174.9L474.5,170.8L478,162.7L473.9,156.9L468.8,146.3L471.5,144.2L480,144.7L485,144.6L488.1,142L493.2,143.5L500.5,146.3L503.1,148.7L511.5,147.3L514,153L519.5,161L524.4,161L529.8,164L535,158.6L535.7,150.2L537.1,146.4L544,151.2L554.9,157.6L564.8,163.6L565.2,168.2L574,169.7L580.7,171.8L589.7,170.8L594.3,171.7L599.8,176.1L604.3,175.6L608,177.1L613.2,183.7L611,187.3L608.7,190.7L601.3,195.8L597.7,202.9L588.9,206.8L576.2,208.9L567.8,211.2L562.2,213.2L559.7,218.8L553.7,223.4L549.1,233.7L544.7,241L549.4,238.8L555.2,228.4L564.8,220.2L573.1,217.3L579.8,219L576.6,224.6L582.1,230.7L586.6,234.8L596.1,235.6L605.5,231.9L607.2,223.3L610.3,227.5L615.5,228.5L610.6,234.7L599.4,242.3L594.6,246.4L590.1,252.7L585.1,253.5L582.1,248.4L590.1,240.5L580.4,243.3L573.9,245.8L576,247.5L570.9,252.2L565.4,255.9L559.6,259.2L557.8,263.7L557.4,265.3L558.7,268.6L562.4,271.5L565.2,271L563.5,268.9L566,269.8L566.3,271.7L562.3,273.7L559.1,274.3L554.7,276.4L551.9,277.3L548.1,278.4L543.3,281.4L552.6,278.2L555.1,279L546.5,282.8L542.2,283.6L542.1,282.8L540.7,284.9L542.8,284.8L543.1,289.6L539.8,295.4L538.7,293.9L537.1,293.9L534.3,292.7L536.9,295.8L539.1,296.6L540.1,299L538.7,301.8L536.5,307.6L535.8,307.5L536.4,302.8L532,301L529.3,295.9L528.9,298.8L531.8,302.6L526.8,302.4L532.4,303.6L534.8,309.6L537,309.7L538.5,311.7L541.8,317.9L538.8,323.4L531.7,326.5L528,331.1L524.4,332.1L521.3,335L520.9,337.3L513.7,342.7L510.2,346.3L507.5,350.7L507.5,355.4L510.1,359.7L514.3,364.9L519.1,369L520,371.8L526,378.8L527,383.3L527.3,385.9L526.4,390.2L524.1,391.4L519.7,391.1L517.6,388.4L514,387.3L508.1,382.2L503.1,377.7L501.2,375.3L501.8,370.7L498.7,367.4L491.1,362.7L487.8,362L480.3,365.9L478.8,365.7L474.3,363L469,361.9L460.1,363.5L452.8,363.3L446.8,364.2L443.6,365.4L445.3,367.1L445.5,369.8L447.4,370.9L446,371.9L442.8,371.1L439.9,372.6L434,372.7L427.5,369.6L420.5,370.7L414.5,369.4L409.5,370.1L402.7,371.8L395.5,376.9L387.3,379.9L382.8,383.1L381,386.1L380.9,390.6L381.4,393.8L383,396.1L379.7,396.3L373.7,394.9L367,392.7L364.7,389.6L363,384.9L358.2,381.1L355.4,377.1L351.5,372.5L345.9,369.8L339.3,369.7L333.7,374.7L327.1,372.4L323.1,370.2L321.5,366.5L319.2,362.9L314.8,359.8L311,357.5L308.4,354.9L294.7,353.9L294.3,356.6L288,356.1L272.3,354.7L255.4,348.1L244.6,343.5L245.6,342.3L235.7,341.7L226.8,340.9L226.5,337.4L222.8,333L219.5,331.7L219.3,329.7L215.2,328.7L213.1,326.5L206.4,324.7L204.9,323.4L205.3,319.7L200.6,312.1L198,302.2L198.8,300.8L196.6,298.1L193.3,291.8L194.5,286.5L192.3,282.3L196,277.5L198,272.1L198,266.9L203,261.5L206.2,256L209.4,250.5L211.8,241.8L212.2,236L211.7,232.7L212.9,231.6L220.7,235.6L221.5,242.2L223.7,240.8L224.8,235.4L224.8,229.8L224,229.6L215.3,221.1L212.4,217.4L203.3,212.4L202.9,206.1L205.6,202.4L200,198L201.6,192.7L197.6,186.4L199.3,183.1L197.7,180L194.3,176.7L196,170.8L192.6,163.9L193.6,157.1L189.3,155.3L181.9,152.8L177.6,149.2L172.6,139.4L169.1,136.7L163.1,131.7L156.6,129.9L150.5,123.6L147.6,119L141.9,118.2L139.1,122.8L136.4,122.1L130.4,121.2L128.7,121.2L191.1,53.7L192.1,53.9L197,59L202.7,62.3L204.5,64.2L209.8,64.8L213.3,68.8ZM617.2,188.5L617,193.2L617.1,199.7L619.2,196.4L623.8,196.4L623.3,199.1L629.3,199L630.8,196.7L637.5,196.5L639.1,201.4L642.1,198.9L645.2,201.7L649.7,204.6L651.3,210.6L648.9,211.8L644.4,212.1L642,206.9L639.9,206.7L637.1,214.2L633.6,215.2L635.6,211L629.2,211.5L623.3,214L612.2,217.4L610.1,215.9L612.3,212.7L608.8,211.9L611.1,206.7L610.3,195.3L611.3,190.8L614.4,187.1L617,186.5ZM437.6,129.9L442.9,131.8L448.5,133.5L449.8,136.8L452.9,135.8L456.8,137.8L453.4,140.5L446,139.7L442.7,136.8L439.1,141.1L433.4,145.5L431,141.5L425,142.7L428.3,138.8L427.8,133L428,126.2L431.2,126.5L432.7,129.6L434.7,128.3ZM219.6,232.1L216.2,232.4L207.7,227.4L207,224.8L202.8,221.4L202.6,219.4L197.2,216.8L196.7,212.9L197.9,211.6L203.2,214.4L206.3,216.1L211.3,218L212.3,220.6L213.9,224.3L218.6,228.1Z";
+  "M109.2,8L175,17.6L240.9,30.5L306,46.8L369.6,66.1L369.8,78.3L378.6,79.8L381.9,90.4L385.3,98.9L393.8,96L405.7,99.9L412.3,103.6L417.4,108.4L425.7,110.5L433,114.2L443.6,113.2L450.7,113.2L451.3,122.9L455.3,133.6L462.3,145L474.3,153.4L478.8,148.8L480,136.8L472.9,120.3L467.2,115.5L476.2,108.2L481.5,98.9L483.1,90.4L480.8,83.1L474.5,74.6L465.5,67.8L469.6,54.4L468.8,52.9L512.8,40.6L518,51.6L523.8,51.6L530.1,56.6L536.1,47.6L537,33.7L537.4,31.9L541.6,30.3L546.6,35.2L559.4,45.9L571,55.9L571.4,63.5L581.7,66L589.6,69.5L600.1,67.8L605.4,69.3L611.9,76.7L617.2,75.7L621.4,78.3L627.5,89.2L624.9,95.1L622.2,100.8L613.6,109.2L609.4,121.1L599.2,127.5L584.4,131.1L574.5,134.9L567.9,138.1L565,147.5L558,155.1L552.6,172.1L547.5,184.3L553,180.7L559.7,163.4L571,149.8L580.7,145L588.6,147.7L584.8,157.1L591.2,167.2L596.5,174L607.6,175.4L618.5,169.1L620.6,154.9L624.2,161.9L630.3,163.5L624.5,173.9L611.4,186.4L605.9,193.3L600.5,203.7L594.7,205L591.2,196.5L600.5,183.4L589.2,188.1L581.7,192.2L584.1,195.2L578.1,202.8L571.7,208.9L564.9,214.5L562.8,221.9L562.3,224.6L563.9,230.1L568.2,234.8L571.4,234.1L569.4,230.6L572.4,232.1L572.8,235.2L568.1,238.6L564.3,239.5L559.1,243.1L555.9,244.6L551.5,246.4L545.8,251.2L556.8,246L559.7,247.3L549.6,253.6L544.5,255L544.4,253.7L542.8,257.2L545.3,257L545.6,265L541.8,274.6L540.5,272.1L538.6,272L535.3,270L538.4,275.2L540.9,276.6L542.1,280.5L540.5,285.2L537.9,294.8L537.1,294.5L537.9,286.8L532.6,283.8L529.5,275.4L529.1,280.3L532.5,286.5L526.6,286.2L533.1,288.2L535.9,298.1L538.5,298.2L540.3,301.6L544.1,311.8L540.6,321L532.4,326.2L528,333.7L523.8,335.4L520.2,340.2L519.7,344.1L511.3,353L507.2,359.1L504.1,366.2L504.1,374.1L507.1,381.3L512,389.9L517.6,396.7L518.6,401.3L525.6,413L526.8,420.3L527.2,424.7L526.1,431.8L523.4,433.8L518.3,433.4L515.8,428.9L511.7,427L504.8,418.6L498.8,411.1L496.7,407.1L497.4,399.5L493.8,394L484.9,386.2L481,385.1L472.3,391.5L470.5,391.1L465.3,386.7L459,384.8L448.6,387.5L440.2,387.2L433.1,388.7L429.4,390.8L431.4,393.5L431.6,397.9L433.8,399.9L432.2,401.5L428.5,400.2L425.1,402.6L418.1,402.9L410.6,397.6L402.4,399.5L395.4,397.4L389.5,398.4L381.6,401.3L373.1,409.7L363.6,414.7L358.4,420L356.2,425L356.2,432.6L356.7,437.9L358.6,441.6L354.7,442L347.6,439.6L339.9,436.1L337.2,430.9L335.2,423.1L329.5,416.7L326.4,410.2L321.8,402.5L315.2,397.9L307.5,397.8L301,406.1L293.3,402.3L288.6,398.7L286.7,392.5L284,386.6L278.8,381.4L274.4,377.5L271.4,373.4L255.4,371.7L254.9,376.2L247.5,375.3L229.2,372.9L209.5,362L196.8,354.4L198,352.4L186.4,351.4L176,350.1L175.7,344.3L171.3,336.9L167.5,334.7L167.2,331.5L162.5,329.8L160,326.2L152.2,323.2L150.4,320.9L150.9,314.9L145.4,302.2L142.4,285.8L143.4,283.5L140.7,279.1L136.9,268.6L138.3,259.8L135.8,252.9L140.1,244.8L142.5,235.9L142.4,227.2L148.3,218.3L152,209.1L155.7,200L158.5,185.6L158.9,176L158.4,170.5L159.8,168.7L168.9,175.3L169.9,186.3L172.4,184L173.7,175L173.7,165.7L172.8,165.4L162.6,151.2L159.2,145.2L148.6,136.9L148.1,126.4L151.3,120.3L144.7,112.9L146.6,104.1L142,93.7L143.9,88.3L142.1,83L138.1,77.7L140.1,67.8L136.1,56.3L137.2,45.1L132.2,42.1L123.5,37.9L118.5,31.9L112.7,15.8L108.7,11.3L108,10.4ZM632.2,97.1L632,105L632.1,115.7L634.6,110.3L639.9,110.3L639.4,114.8L646.4,114.6L648.1,110.7L655.9,110.4L657.8,118.5L661.3,114.5L664.9,119.1L670.2,124L672,133.9L669.3,135.8L664,136.3L661.2,127.7L658.8,127.4L655.5,139.8L651.4,141.4L653.7,134.5L646.2,135.3L639.4,139.4L626.3,145.2L624,142.7L626.5,137.3L622.4,136L625.1,127.4L624.2,108.5L625.3,100.9L628.9,94.9L632,93.9ZM167.6,169.6L163.7,170L153.8,161.7L152.9,157.4L148,151.8L147.8,148.4L141.5,144.2L140.9,137.6L142.3,135.4L148.5,140.1L152,143L158,146.2L159.1,150.5L160.9,156.5L166.4,162.9Z";
 
 // Internal borders, both clipped to the landmass at render time.
 const US_CA_BORDER =
-  "M199.3,183.1L203.8,180.8L205.7,176.8L199.4,170.4L198.5,161.7L198.1,156.3L195.5,152.1L194,148.5L193.6,144.5L187.7,145.1L180.9,147.2L179.6,141.7L178.3,137.8L175.2,134.6L171,132.8L197.8,96.3L216.3,71.2M573.9,245.8L568.2,243.3L564,234.9L560.5,233.7L557,235.7L554.2,234.6L551.8,240.3L552.1,245.6L551.2,248.9L549,250.5L547.1,251.2L547.1,252.9L535.5,255.3L525.9,257.2L523.5,258.9L518.3,264.6L517.7,265.2L516.4,268.1L510.4,269.1L504,270.1L501.4,271.5L502.8,272.6L504,274.5L504.1,275.2L496.3,279.6L489.6,281.6L482.6,286L480.9,286.2L478.4,285.5L477.4,284.6L477.4,283.9L478.3,281.5L480.6,277.6L481.6,273.6L478.9,268.1L476.1,262.5L468.7,260.2L469.2,259L468.1,258.3L466.3,258.5L464.8,257.6L464.2,256.1L463.1,256.9L461.3,256.9L461.6,256.2L460,255.7L459,254.1L453.7,252.5L448.2,250.8L441.7,248.8L435.5,246.9L430.2,249.1L428.2,249.3L420.3,248.1L415.4,249.2L409.1,247.5L402.7,246.7L398.4,246.4L396.4,245.3L395.2,241.7L393.1,241.8L393.2,244.3L309.2,236.2L224.8,229.8";
+  "M143.9,88.3L149.1,84.4L151.4,77.7L144,67.2L142.9,52.7L142.6,43.7L139.5,36.8L137.7,30.9L137.2,24.1L130.3,25.1L122.4,28.6L120.9,19.5L119.4,13.1L115.8,7.7L110.9,4.8L142.2,-55.8L163.7,-97.5M581.7,192.2L575,188.1L570.1,174.1L566,172.2L561.8,175.5L558.6,173.6L555.8,183.2L556.2,191.9L555.1,197.5L552.5,200L550.3,201.2L550.3,204L536.8,208L525.5,211.1L522.7,213.9L516.6,223.5L515.9,224.5L514.5,229.2L507.5,230.8L500,232.6L496.9,235L498.5,236.8L499.9,239.9L500,241L490.9,248.3L483.2,251.6L475,258.9L473,259.3L470,258.1L468.9,256.7L468.9,255.5L470,251.5L472.6,245L473.8,238.3L470.6,229.3L467.3,219.9L458.7,216.2L459.3,214.1L458,213L455.9,213.3L454.2,211.8L453.4,209.4L452.1,210.7L450.1,210.7L450.4,209.5L448.5,208.7L447.4,206L441.2,203.4L434.8,200.5L427.1,197.2L419.9,194.1L413.7,197.8L411.3,198.1L402.1,196.1L396.4,197.9L389.1,195L381.6,193.7L376.6,193.2L374.2,191.5L372.8,185.5L370.3,185.6L370.5,189.8L272.3,176.3L173.7,165.7";
 
 function parseViewBox(svg: SVGSVGElement): ViewBox {
   const parts = (svg.getAttribute("viewBox") ?? "0 0 780 450")
@@ -44,13 +88,9 @@ function parseViewBox(svg: SVGSVGElement): ViewBox {
   return { x: parts[0], y: parts[1], w: parts[2], h: parts[3] };
 }
 
-function zoomFor(city: PortfolioCity): ViewBox {
-  return {
-    x: city.x - ZOOM_W / 2,
-    y: city.y - ZOOM_H / 2,
-    w: ZOOM_W,
-    h: ZOOM_H,
-  };
+function zoomFor(city: PortfolioCity, w: number): ViewBox {
+  const h = w * MAP_ASPECT;
+  return { x: city.x - w / 2, y: city.y - h / 2, w, h };
 }
 
 export function PortfolioMap({
@@ -61,6 +101,11 @@ export function PortfolioMap({
   const svgRef = useRef<SVGSVGElement | null>(null);
   const rafRef = useRef<number | null>(null);
   const [hoverPetal, setHoverPetal] = useState<number | null>(null);
+  const compact = useSyncExternalStore(
+    subscribeCompact,
+    readCompact,
+    readCompactOnServer,
+  );
 
   const selectedCity = useMemo(
     () => CITIES.find((c) => c.key === activeCity) ?? null,
@@ -97,11 +142,15 @@ export function PortfolioMap({
   // Animate the viewBox toward the target whenever the selection changes. Not a
   // CSS transition — viewBox isn't animatable that way — so drive it with rAF
   // and an ease-in-out cubic. Under prefers-reduced-motion, jump straight there.
+  // Re-runs on a breakpoint change too, so rotating a phone re-frames the
+  // cluster at the zoom that suits the new width.
   useEffect(() => {
     const svg = svgRef.current;
     if (!svg) return;
 
-    const target = selectedCity ? zoomFor(selectedCity) : FULL_VIEW;
+    const target = selectedCity
+      ? zoomFor(selectedCity, compact ? COMPACT_ZOOM_W : ZOOM_W)
+      : FULL_VIEW;
 
     if (prefersReducedMotion()) {
       svg.setAttribute(
@@ -113,6 +162,12 @@ export function PortfolioMap({
 
     const from = parseViewBox(svg);
     const start = performance.now();
+
+    // Drops the landmass drop shadow and coastline antialiasing for the
+    // duration of the tween — see .map-animating in globals.css. Toggled on the
+    // node rather than through state so it costs no re-render, the same way
+    // this effect already writes viewBox directly.
+    svg.classList.add("map-animating");
 
     const tick = (now: number) => {
       const t = Math.min(1, (now - start) / ANIM_MS);
@@ -128,13 +183,15 @@ export function PortfolioMap({
         ].join(" "),
       );
       if (t < 1) rafRef.current = requestAnimationFrame(tick);
+      else svg.classList.remove("map-animating");
     };
 
     rafRef.current = requestAnimationFrame(tick);
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      svg.classList.remove("map-animating");
     };
-  }, [selectedCity]);
+  }, [selectedCity, compact]);
 
   // Drop a stale hover highlight when the cluster changes — reset during render
   // rather than in an effect (see React docs: "adjusting some state when a prop
@@ -156,7 +213,7 @@ export function PortfolioMap({
       xmlns="http://www.w3.org/2000/svg"
       className="block h-auto w-full select-none"
       role="group"
-      aria-label="Map of North America — select a city to see Rose Hill's projects there"
+      aria-label="Map of North America. Select a city to see Rose Hill Design Build's projects there."
       onClick={zoomedOut}
     >
       <defs>
@@ -221,6 +278,7 @@ export function PortfolioMap({
       />
 
       <path
+        className="map-land map-land-shadow"
         d={LAND_PATH}
         fill="url(#pm-land-gradient)"
         stroke="var(--color-gold)"
@@ -230,6 +288,7 @@ export function PortfolioMap({
         filter="url(#pm-land-shadow)"
       />
       <path
+        className="map-land"
         d={LAND_PATH}
         fill="url(#pm-land-sheen)"
         style={{ pointerEvents: "none" }}
@@ -252,26 +311,27 @@ export function PortfolioMap({
 
       {/* Country labels — light type on the dark fill, centred on each mass. */}
       <g
+        className="map-fine-print"
         style={{ pointerEvents: "none" }}
         fill="var(--color-warm-white)"
         fontWeight="300"
       >
         <text
-          x="362"
-          y="162"
+          x="379"
+          y="122"
           textAnchor="middle"
           fontSize="11"
-          opacity="0.4"
+          opacity="0.6"
           style={{ letterSpacing: "0.32em" }}
         >
           CANADA
         </text>
         <text
-          x="432"
-          y="300"
+          x="341"
+          y="286"
           textAnchor="middle"
           fontSize="11"
-          opacity="0.36"
+          opacity="0.55"
           style={{ letterSpacing: "0.32em" }}
         >
           UNITED STATES
@@ -298,6 +358,7 @@ export function PortfolioMap({
                 fill="none"
                 stroke="var(--color-gold)"
                 strokeWidth="1.5"
+                vectorEffect="non-scaling-stroke"
                 style={{ pointerEvents: "none" }}
               />
 
@@ -315,7 +376,9 @@ export function PortfolioMap({
                 />
               ))}
 
-              {/* hub — click / Enter to zoom back out */}
+              {/* hub — tap / Enter to zoom back out. The dot is decoration;
+                  the transparent circle over it carries the interaction so the
+                  target is finger-sized without inflating the artwork. */}
               <circle
                 cx="0"
                 cy="0"
@@ -323,10 +386,17 @@ export function PortfolioMap({
                 fill="var(--color-gold)"
                 stroke="var(--color-warm-white)"
                 strokeWidth="1.5"
+                style={{ pointerEvents: "none" }}
+              />
+              <circle
+                cx="0"
+                cy="0"
+                r={PETAL_HIT_R}
+                fill="transparent"
                 role="button"
                 tabIndex={0}
                 aria-label={`Zoom out from ${selectedCity.name}`}
-                className="focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-2"
+                className="map-node focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-2"
                 style={{ cursor: "pointer" }}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -355,76 +425,143 @@ export function PortfolioMap({
                     >
                       <circle
                         r="8"
-                        fill={CATEGORY_COLOR[project.category]}
+                        fill="var(--color-gold)"
                         stroke="var(--color-warm-white)"
                         strokeWidth="1.5"
-                        role="button"
-                        tabIndex={0}
-                        aria-label={`View project: ${project.name}`}
-                        className="focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-2"
-                        style={{ cursor: "pointer" }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onSelectProject(project.id);
-                        }}
-                        onKeyDown={(e) =>
-                          onActivateKey(e, () =>
-                            onSelectProject(project.id),
-                          )
-                        }
-                        onMouseEnter={() => setHoverPetal(project.id)}
-                        onMouseLeave={() => setHoverPetal(null)}
-                        onFocus={() => setHoverPetal(project.id)}
-                        onBlur={() => setHoverPetal(null)}
+                        style={{ pointerEvents: "none" }}
                       />
                     </g>
+                    {/* Kept out of the bloom <g> so the target is live from
+                        the first frame rather than scaling in with the dot. */}
+                    <circle
+                      r={PETAL_HIT_R}
+                      fill="transparent"
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`View project: ${project.name}`}
+                      className="map-node focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-2"
+                      style={{ cursor: "pointer" }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSelectProject(project.id);
+                      }}
+                      onKeyDown={(e) =>
+                        onActivateKey(e, () => onSelectProject(project.id))
+                      }
+                      onMouseEnter={() => setHoverPetal(project.id)}
+                      onMouseLeave={() => setHoverPetal(null)}
+                      onFocus={() => setHoverPetal(project.id)}
+                      onBlur={() => setHoverPetal(null)}
+                    />
                   </g>
                 );
               })}
 
               {/* hover / focus label for the active petal */}
-              {hoverPetal != null &&
-                (() => {
-                  const i = cityProjects.findIndex(
-                    (p) => p.id === hoverPetal,
-                  );
-                  if (i < 0) return null;
-                  const { lx, ly, anchor } = petalGeom[i];
-                  const label = truncate(cityProjects[i].name);
-                  const tw = label.length * 5 + 8;
-                  return (
-                    <g style={{ pointerEvents: "none" }}>
-                      <rect
-                        x={anchor === "end" ? lx - tw + 4 : lx - 4}
-                        y={ly - 8}
-                        width={tw}
-                        height="15"
-                        fill="var(--color-warm-white)"
-                        opacity="0.92"
-                      />
-                      <text
-                        x={lx}
-                        y={ly}
-                        textAnchor={anchor}
-                        dominantBaseline="middle"
-                        fontSize="9"
-                        fontWeight="500"
-                        fill="var(--color-dark)"
-                        style={{ letterSpacing: "0.04em" }}
-                      >
-                        {label}
-                      </text>
-                    </g>
-                  );
-                })()}
+              {(() => {
+                if (hoverPetal == null) return null;
+                const i = cityProjects.findIndex((p) => p.id === hoverPetal);
+                if (i < 0) return null;
+                const { lx, ly, anchor } = petalGeom[i];
+                return (
+                  <PetalLabel
+                    label={truncate(cityProjects[i].name)}
+                    lx={lx}
+                    ly={ly}
+                    anchor={anchor}
+                  />
+                );
+              })()}
             </g>
           )}
     </svg>
   );
 }
 
+// 16 keeps the longest label inside the 160px half-width of the zoomed
+// viewBox with room to spare; 12 was cutting most real project names down to
+// an initial word. Only the pointer path renders these — the tighter compact
+// zoom has half the room, and touch has no hover to trigger them.
+const PETAL_LABEL_MAX = 16;
+
+/**
+ * Measured advance width of an SVG <text>, so a label's background hugs the
+ * glyphs actually drawn. A per-character estimate can't do this: DM Sans plus
+ * letter-spacing runs wider than any single constant, and long labels spilled
+ * out of their chips. `estimate` is only the pre-measurement fallback (SSR and
+ * the first paint), so it errs generous.
+ */
+function useTextWidth(
+  ref: RefObject<SVGTextElement | null>,
+  text: string,
+  estimate: number,
+): number {
+  const [width, setWidth] = useState<number | null>(null);
+
+  useIsomorphicLayoutEffect(() => {
+    const measure = () => {
+      if (ref.current) setWidth(ref.current.getComputedTextLength());
+    };
+    measure();
+    // Measuring before the webfont swaps in reads the fallback face, which is
+    // a different width — re-measure once fonts settle.
+    document.fonts?.ready.then(measure).catch(() => {});
+  }, [ref, text]);
+
+  // Round up: keeps the emitted markup free of float noise, and any rounding
+  // error lands on the side that fits.
+  return Math.ceil(width ?? estimate);
+}
+
+function PetalLabel({
+  label,
+  lx,
+  ly,
+  anchor,
+}: {
+  label: string;
+  lx: number;
+  ly: number;
+  anchor: "start" | "end";
+}) {
+  const textRef = useRef<SVGTextElement>(null);
+  const textW = useTextWidth(textRef, label, label.length * 5.6);
+  const tw = textW + 8; // 4px padding either side of the glyphs
+
+  return (
+    <g
+      className="map-hover-label"
+      style={{ pointerEvents: "none" }}
+    >
+      <rect
+        x={anchor === "end" ? lx - tw + 4 : lx - 4}
+        y={ly - 8}
+        width={tw}
+        height="15"
+        fill="var(--color-warm-white)"
+        opacity="0.92"
+      />
+      <text
+        ref={textRef}
+        x={lx}
+        y={ly}
+        textAnchor={anchor}
+        dominantBaseline="middle"
+        fontSize="9"
+        fontWeight="500"
+        fill="var(--color-dark)"
+        style={{ letterSpacing: "0.04em" }}
+      >
+        {label}
+      </text>
+    </g>
+  );
+}
+
 function truncate(name: string): string {
-  return name.length > 12 ? `${name.slice(0, 12).trimEnd()}…` : name;
+  return name.length > PETAL_LABEL_MAX
+    ? `${name.slice(0, PETAL_LABEL_MAX).trimEnd()}…`
+    : name;
 }
 
 function DefaultMarker({
@@ -437,7 +574,10 @@ function DefaultMarker({
   onSelect: () => void;
 }) {
   const label = `${city.shortLabel} · ${count}`;
-  const chipW = label.length * 6 + 14;
+  const textRef = useRef<SVGTextElement>(null);
+  // Text sits 20 from the marker and the chip starts at 13, so the chip needs
+  // the glyph width plus that 7 offset — +14 leaves 7px clear either side.
+  const chipW = useTextWidth(textRef, label, label.length * 7.6) + 14;
   const dir = city.labelDir === "left" ? -1 : 1;
 
   return (
@@ -446,7 +586,7 @@ function DefaultMarker({
       role="button"
       tabIndex={0}
       aria-label={`View projects in ${city.name} (${count})`}
-      className="focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-2"
+      className="map-node focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-2"
       style={{ cursor: "pointer" }}
       onClick={(e) => {
         e.stopPropagation();
@@ -454,37 +594,42 @@ function DefaultMarker({
       }}
       onKeyDown={(e) => onActivateKey(e, onSelect)}
     >
-      {/* comfortable hit area around the diamond */}
-      <circle r="13" fill="transparent" />
+      {/* comfortable hit area around the diamond — the whole marker is one
+          target, but below `md` the chip is hidden and this is all that's
+          left of it, so it carries the touch sizing on its own */}
+      <circle r={CITY_HIT_R} fill="transparent" />
 
-      <line
-        x1={7 * dir}
-        y1="0"
-        x2={13 * dir}
-        y2="0"
-        stroke="var(--color-dark)"
-        strokeWidth="1"
-        opacity="0.55"
-      />
-      <rect
-        x={dir === 1 ? 13 : -13 - chipW}
-        y="-8"
-        width={chipW}
-        height="16"
-        fill="var(--color-dark)"
-      />
-      <text
-        x={dir === 1 ? 20 : -20}
-        y="0"
-        textAnchor={dir === 1 ? "start" : "end"}
-        dominantBaseline="middle"
-        fontSize="10"
-        fontWeight="500"
-        fill="var(--color-warm-white)"
-        style={{ letterSpacing: "0.1em" }}
-      >
-        {label}
-      </text>
+      <g className="map-fine-print">
+        <line
+          x1={7 * dir}
+          y1="0"
+          x2={13 * dir}
+          y2="0"
+          stroke="var(--color-dark)"
+          strokeWidth="1"
+          opacity="0.55"
+        />
+        <rect
+          x={dir === 1 ? 13 : -13 - chipW}
+          y="-8"
+          width={chipW}
+          height="16"
+          fill="var(--color-dark)"
+        />
+        <text
+          ref={textRef}
+          x={dir === 1 ? 20 : -20}
+          y="0"
+          textAnchor={dir === 1 ? "start" : "end"}
+          dominantBaseline="middle"
+          fontSize="10"
+          fontWeight="500"
+          fill="var(--color-warm-white)"
+          style={{ letterSpacing: "0.1em" }}
+        >
+          {label}
+        </text>
+      </g>
 
       {/* gold diamond */}
       <path

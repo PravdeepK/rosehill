@@ -16,7 +16,7 @@ export function cityName(key: string): string {
   return CITIES.find((c) => c.key === key)?.name ?? key;
 }
 
-/** Number of projects Rose Hill has in a given city key. */
+/** Number of projects Rose Hill Design Build has in a given city key. */
 export function projectCount(key: string): number {
   return PROJECTS.filter((p) => p.city === key).length;
 }

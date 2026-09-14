@@ -49,18 +49,17 @@ export function PortfolioMapExperience() {
           <Reveal>
             <SectionLabel color="text-gold">Portfolio</SectionLabel>
             <h1 className="mt-4 max-w-2xl text-2xl font-light leading-tight sm:text-3xl md:text-4xl lg:text-5xl">
-              Explore what we&rsquo;ve built, city by city.
+              What we&rsquo;ve built, city by city.
             </h1>
             <p className="mt-4 max-w-xl leading-relaxed text-warm-white/75">
-              From the Greater Toronto Area down to Boston and Miami &mdash;
-              select a location on the map to see the projects Rose Hill has
-              delivered there.
+              Rose Hill Design Build works across Canada and the United States.
+              Select a location on the map to see the work we&rsquo;ve completed
+              there.
             </p>
 
-            <div className="mt-10 grid max-w-xs grid-cols-3 sm:max-w-md">
-              <Stat value={CITIES.length} label="Cities" first />
-              <Stat value={PROJECTS.length} label="Projects" />
-              <Stat value={2} label="Countries" />
+            <div className="mt-10 flex">
+              <Stat value="10+" label="Cities" first />
+              <Stat value="500+" label="Projects" />
             </div>
           </Reveal>
         </div>
@@ -84,29 +83,47 @@ export function PortfolioMapExperience() {
                 onSelectProject={setModalProjectId}
               />
 
+              {/* The hub and a tap on open water both zoom out, but neither is
+                  discoverable — this is the visible way back, and the only one
+                  sized for a finger. */}
               {activeCity !== "all" && (
-                <p className="pointer-events-none absolute bottom-3 left-3 bg-warm-white/90 px-2.5 py-1 text-[10px] uppercase tracking-[0.1em] text-medium-grey">
-                  {cityName(activeCity)}{" "}
-                  <span className="tracking-normal">
-                    &middot; click the hub to zoom out
-                  </span>
-                </p>
+                <div className="absolute bottom-3 left-3 flex items-center gap-2">
+                  <p className="pointer-events-none hidden bg-warm-white/90 px-2.5 py-1 text-[10px] uppercase tracking-[0.1em] text-medium-grey sm:block">
+                    {cityName(activeCity)}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setActiveCity("all")}
+                    className="flex min-h-11 cursor-pointer items-center gap-1.5 border border-warm-grey bg-warm-white/95 px-3 text-[10px] uppercase tracking-[0.1em] text-dark transition-colors duration-200 hover:border-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-2 sm:min-h-0 sm:py-1.5"
+                  >
+                    <span aria-hidden="true">&larr;</span> All locations
+                  </button>
+                </div>
               )}
             </div>
 
             {/* Always-visible list of what's available — also the touch and
-                keyboard path into each city (plan §6.4). */}
-            <div className="mt-4 flex flex-wrap gap-2">
+                keyboard path into each city (plan §6.4). Below `md` the map
+                drops its city chips and two of the pins sit ~17px apart, so
+                these pills are the labelled, properly-sized equivalent
+                control rather than a convenience. */}
+            {/* Two even columns on a phone rather than flex-wrap: the names
+                vary enough in length that wrapping left a ragged, gappy stack.
+                "All" spans the row, so the six cities fill three clean ones. */}
+            <div className="mt-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
               <CityPill
                 label="All Locations"
+                shortLabel="All"
                 count={PROJECTS.length}
                 active={activeCity === "all"}
                 onClick={() => setActiveCity("all")}
+                wide
               />
               {CITIES.map((city) => (
                 <CityPill
                   key={city.key}
                   label={city.name}
+                  shortLabel={city.shortLabel}
                   count={projectCount(city.key)}
                   active={activeCity === city.key}
                   onClick={() => setActiveCity(city.key)}
@@ -129,7 +146,7 @@ export function PortfolioMapExperience() {
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap">
               <FilterPill
                 label="All"
                 active={activeCategory === "all"}
@@ -161,7 +178,9 @@ export function PortfolioMapExperience() {
                 <div
                   key={project.id}
                   className="hero-fade-up"
-                  style={{ animationDelay: `${i * 80}ms` }}
+                  // Capped: an uncapped 80ms step left the last of 16 cards
+                  // starting 1.2s in, so the grid took 2s to settle.
+                  style={{ animationDelay: `${Math.min(i, 7) * 80}ms` }}
                 >
                   <PortfolioProjectCard
                     project={project}
@@ -184,7 +203,7 @@ function Stat({
   label,
   first = false,
 }: {
-  value: number;
+  value: string;
   label: string;
   first?: boolean;
 }) {
@@ -206,27 +225,42 @@ function Stat({
 
 function CityPill({
   label,
+  shortLabel,
   count,
   active,
   onClick,
+  wide = false,
 }: {
   label: string;
+  shortLabel: string;
   count: number;
   active: boolean;
   onClick: () => void;
+  wide?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`cursor-pointer border px-3.5 py-2 text-xs uppercase tracking-[0.12em] transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-2 ${
+      // The visible text shortens on a phone, so name the button explicitly —
+      // screen readers get the full city either way.
+      aria-label={`${label}, ${count} project${count !== 1 ? "s" : ""}`}
+      className={`flex min-h-11 cursor-pointer items-center justify-center border px-3 py-2 text-center text-xs uppercase tracking-[0.12em] transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-2 sm:min-h-0 sm:px-3.5 ${
+        wide ? "col-span-2" : ""
+      } ${
         active
-          ? "border-gold text-gold-contrast"
-          : "border-warm-grey text-medium-grey hover:border-gold"
+          ? "border-gold bg-warm-white text-gold-contrast"
+          : // Not border-warm-grey: this section's background *is* warm-grey,
+            // so that border was invisible and the pills read as loose text.
+            "border-medium-grey/30 bg-warm-white text-medium-grey hover:border-gold"
       }`}
     >
-      {label} <span className="opacity-60">&middot; {count}</span>
+      <span aria-hidden="true">
+        <span className="sm:hidden">{shortLabel}</span>
+        <span className="hidden sm:inline">{label}</span>{" "}
+        <span className="opacity-60">&middot; {count}</span>
+      </span>
     </button>
   );
 }
@@ -245,10 +279,10 @@ function FilterPill({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`cursor-pointer border px-3.5 py-2 text-[11px] uppercase tracking-[0.12em] transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-2 ${
+      className={`flex min-h-11 cursor-pointer items-center justify-center border px-3 py-2 text-center text-[11px] uppercase tracking-[0.12em] transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-2 sm:min-h-0 sm:px-3.5 ${
         active
           ? "border-dark bg-dark text-warm-white"
-          : "border-warm-grey text-medium-grey hover:border-gold"
+          : "border-medium-grey/30 text-medium-grey hover:border-gold"
       }`}
     >
       {label}

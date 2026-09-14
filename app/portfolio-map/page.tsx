@@ -4,7 +4,7 @@ import { PortfolioMapExperience } from "@/components/portfolio-map/PortfolioMapE
 export const metadata: Metadata = {
   title: "Portfolio Map",
   description:
-    "Explore Rose Hill Design Build's projects across North America — select a city to see what we've built there.",
+    "Rose Hill Design Build's completed projects across Canada and the United States, mapped city by city.",
   alternates: { canonical: "/portfolio-map" },
 };
 
