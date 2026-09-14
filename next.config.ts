@@ -14,6 +14,13 @@ const nextConfig: NextConfig = {
         destination: "https://www.rosehilldesignbuild.com/",
         permanent: true,
       },
+      // Retired in favour of /portfolio-map, which shows the same work with
+      // real photography. The old route was indexed, so redirect rather than 404.
+      {
+        source: "/projects",
+        destination: "https://www.rosehilldesignbuild.com/portfolio-map",
+        permanent: true,
+      },
       {
         source: "/:path*",
         has: [{ type: "host", value: "rosehilldesignbuild.com" }],
@@ -23,12 +30,6 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-      },
-    ],
     // LogoWall uses ?v=mtime in dev for cache busting; omit search so query strings are allowed.
     localPatterns: [
       { pathname: "/logos/**" },

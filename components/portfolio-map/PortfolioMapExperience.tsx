@@ -169,7 +169,7 @@ export function PortfolioMapExperience() {
             </p>
           ) : (
             // `key` remounts the grid on filter change so the CSS stagger
-            // re-runs — same technique as components/projects/ProjectGrid.tsx.
+            // re-runs.
             <div
               key={`${activeCity}-${activeCategory}`}
               className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3"

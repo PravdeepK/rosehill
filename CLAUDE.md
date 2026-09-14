@@ -50,7 +50,6 @@ checking the build still passes.
 | Fonts | `next/font/google` DM Sans → `--font-dm-sans` / `font-sans` |
 | Email | Resend (`resend`) |
 | Rate limiting | `@upstash/ratelimit` + `@upstash/redis` (env-configured) |
-| Carousel | `embla-carousel-react` (projects page only) |
 | Video | `hls.js` for the homepage hero (Cloudflare Stream) |
 | Animation | **No framer-motion.** CSS keyframes in `globals.css` + a small IntersectionObserver `Reveal` component |
 | Hosting | Vercel |
@@ -70,7 +69,6 @@ app/
   not-found.tsx         404
   robots.ts / sitemap.ts   Metadata routes (sitemap is a hand-maintained list)
   portfolio-map/page.tsx   /portfolio-map — see §6
-  projects/page.tsx        /projects — carousel + grid (data from lib/data.ts)
   services/page.tsx        /services — renders lib/data.ts `generalContracting`
   careers/  (layout.tsx = metadata, page.tsx = client form)
   contact/page.tsx         Form + two inline Google Maps iframes
@@ -82,7 +80,6 @@ components/
   layout/    Navbar, Footer
   home/      Hero, Advantage, LogoWall (+Client), Testimonials, CallToAction
   intro/     IntroGate (splash held until hero video is sharp; see lib/heroReady.ts)
-  projects/  ProjectGrid, FilterBar, ProjectCard, ProjectCarousel
   portfolio-map/   PortfolioMapExperience, PortfolioMap, ProjectModal,
                    PortfolioProjectCard, helpers.ts   (see §6)
   services/  ServicesTabs  (file name is legacy — it renders a static card grid)
@@ -92,7 +89,7 @@ components/
 
 lib/
   site.ts            SITE_URL, SITE_NAME, PAGE_TITLE_TAGLINE, SITE_DESCRIPTION
-  data.ts            projects[], testimonials[], services[], generalContracting
+  data.ts            testimonials[], services[], generalContracting
   portfolioMapData.ts  Self-contained data + types for /portfolio-map (see §6)
   heroReady.ts       Cross-component signal: hero video ready → intro splash clears
 
@@ -236,15 +233,15 @@ NEXT_PUBLIC_HERO_VIDEO_UID=
 ```
 
 Deployed on Vercel; push to a branch → preview deploy, `main` → production.
-`next.config.ts` handles apex→www and legacy `/about*` redirects, and whitelists
-`images.unsplash.com` + local `/logos` `/images` `/company-logos` for
+`next.config.ts` handles apex→www, legacy `/about*` and retired `/projects`
+redirects, and whitelists local `/logos` `/images` `/company-logos` for
 `next/image`.
 
 **Brand fonts are NOT wired up.** `public/fonts/README.md` claims `@font-face` is
 "already wired up in `globals.css`" — it is not. There are no `@font-face` rules
-and no `--font-display` token, so `.font-display` classes (used in
-`components/projects/*`) silently fall back to DM Sans. Wiring these up is a
-known task, not a bug to be surprised by.
+and no `--font-display` token. Nothing references `.font-display` any more (the
+only two call sites went with `/projects`), so wiring the fonts up now means
+choosing where they should apply, not just adding the rules.
 
 ---
 
@@ -253,33 +250,28 @@ known task, not a bug to be surprised by.
 Backlog of rough edges found by reading the code. Not all verified end-to-end;
 treat as leads, confirm before acting.
 
-1. **`/projects` is orphaned** — in `sitemap.ts` (priority 0.9) but not linked
-   from `Navbar` or `Footer` (nav points to `/portfolio-map`). Uses placeholder
-   Unsplash images. No `/projects/[id]` detail route although cards say
-   "View Project". `FilterBar` has a "Special Projects" category that matches no
-   project.
-2. **`services: Service[]` in `lib/data.ts` is dead code** — the Services page
+1. **`services: Service[]` in `lib/data.ts` is dead code** — the Services page
    only renders `generalContracting`. (7-item array, one `highlight`.)
-3. **Brand fonts not wired** — see §7.
-4. **`components/contact/MapEmbed.tsx` is unused** — the Contact page inlines its
+2. **Brand fonts not wired** — see §7.
+3. **`components/contact/MapEmbed.tsx` is unused** — the Contact page inlines its
    own two Google Maps iframes.
-5. **`ServicesTabs` is misnamed** — it renders a static card grid, not tabs
+4. **`ServicesTabs` is misnamed** — it renders a static card grid, not tabs
    (component is literally `ServicesCards`).
-6. **Favicon resolution** — `app/icon.svg` / `app/favicon.ico` exist, but root
+5. **Favicon resolution** — `app/icon.svg` / `app/favicon.ico` exist, but root
    `metadata.icons.icon` overrides `<link rel="icon">` to
    `/company-logos/rose-hill-cropped.svg`, so the app-router icons only serve
    legacy `/favicon.ico` requests.
-7. **Hardcoded colors** — Testimonials company text and form error text use
+6. **Hardcoded colors** — Testimonials company text and form error text use
    inline hex (`#CB9E41`, `#b8963e`) instead of tokens. `--color-light-grey` is
    defined but unused.
-8. **Careers metadata** — description in `careers/layout.tsx` (authoritative)
+7. **Careers metadata** — description in `careers/layout.tsx` (authoritative)
    differs from the visible page copy. Minor.
-9. **Logo filter mismatch** — the dev `api/logos-meta` endpoint filters
+8. **Logo filter mismatch** — the dev `api/logos-meta` endpoint filters
    `.png|.svg`; the production SSR `LogoWall` filters `.webp|.svg`. A PNG-only
    logo shows in dev polling but not in a production build.
-10. **No test suite, no CI** in the repo. No error monitoring / analytics.
-11. **`sameAs: []`** in `JsonLd.tsx` — no social profiles in structured data.
-12. **Careers message field** — server caps `message` at 2000 chars but the
+9. **No test suite, no CI** in the repo. No error monitoring / analytics.
+10. **`sameAs: []`** in `JsonLd.tsx` — no social profiles in structured data.
+11. **Careers message field** — server caps `message` at 2000 chars but the
     Careers `<textarea>` has no client `maxLength` (Contact's textarea is
     capped client-side; Contact also *requires* `message`, 1–2000).
 
