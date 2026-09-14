@@ -34,9 +34,9 @@ export const metadata: Metadata = {
     template: `%s | ${PAGE_TITLE_TAGLINE}`,
   },
   description: SITE_DESCRIPTION,
-  icons: {
-    icon: "/company-logos/rose-hill-cropped.svg",
-  },
+  // No `icons` key: that override pointed at a wordmark SVG and suppressed the
+  // App Router's own convention. app/icon.svg and app/favicon.ico are picked up
+  // automatically and are the higher-quality source.
   openGraph: {
     type: "website",
     locale: "en_US",

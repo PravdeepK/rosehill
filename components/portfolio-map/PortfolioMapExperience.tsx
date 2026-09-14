@@ -88,13 +88,19 @@ export function PortfolioMapExperience() {
                   sized for a finger. */}
               {activeCity !== "all" && (
                 <div className="absolute bottom-3 left-3 flex items-center gap-2">
-                  <p className="pointer-events-none hidden bg-warm-white/90 px-2.5 py-1 text-[10px] uppercase tracking-[0.1em] text-medium-grey sm:block">
+                  {/* Same padding, type and 1px box as the button beside it —
+                      the border is transparent so it matches in size without
+                      reading as a second control. */}
+                  <p className="pointer-events-none hidden items-center border border-transparent bg-warm-white/90 px-3 py-1.5 text-[10px] uppercase tracking-[0.1em] text-medium-grey sm:flex">
                     {cityName(activeCity)}
                   </p>
                   <button
                     type="button"
                     onClick={() => setActiveCity("all")}
-                    className="flex min-h-11 cursor-pointer items-center gap-1.5 border border-warm-grey bg-warm-white/95 px-3 text-[10px] uppercase tracking-[0.1em] text-dark transition-colors duration-200 hover:border-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-2 sm:min-h-0 sm:py-1.5"
+                    // 36px tall on a phone rather than 44: it sits over the map
+                    // and the full-height version crowded the cluster. Still
+                    // clear of the 24px WCAG 2.5.8 floor.
+                    className="flex min-h-9 cursor-pointer items-center gap-1.5 border border-warm-grey bg-warm-white/95 px-2.5 text-[9px] uppercase tracking-[0.08em] text-dark transition-colors duration-200 hover:border-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-2 sm:min-h-0 sm:px-3 sm:py-1.5 sm:text-[10px] sm:tracking-[0.1em]"
                   >
                     <span aria-hidden="true">&larr;</span> All locations
                   </button>
@@ -169,7 +175,7 @@ export function PortfolioMapExperience() {
             </p>
           ) : (
             // `key` remounts the grid on filter change so the CSS stagger
-            // re-runs — same technique as components/projects/ProjectGrid.tsx.
+            // re-runs.
             <div
               key={`${activeCity}-${activeCategory}`}
               className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3"
@@ -259,7 +265,9 @@ function CityPill({
       <span aria-hidden="true">
         <span className="sm:hidden">{shortLabel}</span>
         <span className="hidden sm:inline">{label}</span>{" "}
-        <span className="opacity-60">&middot; {count}</span>
+        {/* No opacity here: 12px type at 60% fell to ~2.5:1 on warm-white.
+            The middot already separates the count from the name. */}
+        <span>&middot; {count}</span>
       </span>
     </button>
   );

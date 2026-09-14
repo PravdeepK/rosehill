@@ -196,7 +196,7 @@ export default function CareersPage() {
                 className="block text-xs uppercase tracking-widest text-medium-grey mb-2"
               >
                 Resume{" "}
-                <span className="normal-case tracking-normal text-medium-grey/70">
+                <span className="normal-case tracking-normal text-medium-grey">
                   (PDF or Word, max 10 MB)
                 </span>
               </label>
@@ -216,7 +216,7 @@ export default function CareersPage() {
                 className="block text-xs uppercase tracking-widest text-medium-grey mb-2"
               >
                 Cover Letter{" "}
-                <span className="normal-case tracking-normal text-medium-grey/70">
+                <span className="normal-case tracking-normal text-medium-grey">
                   (optional — PDF or Word, max 10 MB)
                 </span>
               </label>
@@ -235,7 +235,7 @@ export default function CareersPage() {
                 className="block text-xs uppercase tracking-widest text-medium-grey mb-2"
               >
                 Message{" "}
-                <span className="normal-case tracking-normal text-medium-grey/70">
+                <span className="normal-case tracking-normal text-medium-grey">
                   (optional)
                 </span>
               </label>
@@ -243,16 +243,13 @@ export default function CareersPage() {
                 id="message"
                 name="message"
                 rows={4}
+                maxLength={2000}
                 className={`${inputClasses} resize-none`}
               />
             </div>
 
             {error && (
-              <p
-                role="alert"
-                className="text-sm"
-                style={{ color: "#b8963e" }}
-              >
+              <p role="alert" className="text-sm text-error">
                 {error}
               </p>
             )}

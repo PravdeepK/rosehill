@@ -29,6 +29,10 @@ npm run lint             # eslint (next/core-web-vitals + next/typescript)
 npm run optimize-images  # scripts/optimize-images.mjs (sharp)
 npm run gen-favicon      # scripts/gen-favicon.mjs
 npm run gen-og           # scripts/gen-og-image.mjs
+
+# No npm alias — run directly, and only when their inputs change:
+node scripts/optimize-project-photos.mjs   # raw photo drop → public/images + manifest (§6)
+node scripts/gen-portfolio-map-path.mjs    # regenerate map geometry (§6)
 ```
 
 There is **no test suite and no CI**. "Working" means: `npm run lint` clean,
@@ -50,8 +54,7 @@ checking the build still passes.
 | Fonts | `next/font/google` DM Sans → `--font-dm-sans` / `font-sans` |
 | Email | Resend (`resend`) |
 | Rate limiting | `@upstash/ratelimit` + `@upstash/redis` (env-configured) |
-| Carousel | `embla-carousel-react` (projects page only) |
-| Video | `hls.js` for the homepage hero (Cloudflare Stream) |
+| Video | Cloudflare Stream, served as a single progressive MP4 (no player lib) |
 | Animation | **No framer-motion.** CSS keyframes in `globals.css` + a small IntersectionObserver `Reveal` component |
 | Hosting | Vercel |
 
@@ -70,7 +73,6 @@ app/
   not-found.tsx         404
   robots.ts / sitemap.ts   Metadata routes (sitemap is a hand-maintained list)
   portfolio-map/page.tsx   /portfolio-map — see §6
-  projects/page.tsx        /projects — carousel + grid (data from lib/data.ts)
   services/page.tsx        /services — renders lib/data.ts `generalContracting`
   careers/  (layout.tsx = metadata, page.tsx = client form)
   contact/page.tsx         Form + two inline Google Maps iframes
@@ -81,20 +83,19 @@ app/
 components/
   layout/    Navbar, Footer
   home/      Hero, Advantage, LogoWall (+Client), Testimonials, CallToAction
-  intro/     IntroGate (splash held until hero video is sharp; see lib/heroReady.ts)
-  projects/  ProjectGrid, FilterBar, ProjectCard, ProjectCarousel
+  intro/     IntroGate (splash held until the hero's first frame; see lib/heroReady.ts)
   portfolio-map/   PortfolioMapExperience, PortfolioMap, ProjectModal,
                    PortfolioProjectCard, helpers.ts   (see §6)
-  services/  ServicesTabs  (file name is legacy — it renders a static card grid)
+  services/  ServicesCards  (static card grid for lib/data.ts `generalContracting`)
   contact/   ContactForm, MapEmbed (MapEmbed is currently unused)
   seo/       JsonLd (Organization / GeneralContractor structured data)
   ui/        Button, SectionLabel, Reveal   (shared primitives — prefer these)
 
 lib/
   site.ts            SITE_URL, SITE_NAME, PAGE_TITLE_TAGLINE, SITE_DESCRIPTION
-  data.ts            projects[], testimonials[], services[], generalContracting
+  data.ts            testimonials[], services[], generalContracting
   portfolioMapData.ts  Self-contained data + types for /portfolio-map (see §6)
-  heroReady.ts       Cross-component signal: hero video ready → intro splash clears
+  heroReady.ts       Cross-component signal: hero first frame → intro splash clears
 
 scripts/    Node/Python one-offs (image opt, favicon, OG image, logo cleanup,
             gen-portfolio-map-path.mjs). Python scripts use ./.venv.
@@ -120,8 +121,9 @@ tokens in `app/globals.css` — use the semantic names:
 
 ```
 gold  gold-light  gold-contrast   (gold-contrast = AA-safe gold for text on light bg)
-warm-white  warm-grey  light-grey
+warm-white  warm-grey
 dark  medium-grey
+error                             (form error text — AA on warm-white and warm-grey)
 ```
 
 Never hardcode a hex that a token already covers. New shared animations go in
@@ -173,13 +175,34 @@ touch/keyboard path (the SVG interactions are progressive enhancement).
 runtime — the landmass is a static projected SVG path.
 
 - `CITIES` — `{ key, name, shortLabel, x, y, labelDir }`. `x`/`y` are in the
-  `780×450` map viewBox (NOT lat/lon).
-- `PROJECTS` — `{ id (unique number), name, category, city (→ CITIES.key),
-  location, description, placeholder (boolean, required) }`. Toronto entries are
-  real; Boston/Miami are `placeholder: true` demo content.
+  `780×450` map viewBox (NOT lat/lon), projected by
+  `scripts/gen-portfolio-map-path.mjs` rather than placed by hand. Six today:
+  `gta`, `calgary`, `poconos`, `sevierville`, `austin`, `miami`. Every GTA
+  address projects to within ~2px of the same point, so Toronto, Yorkville,
+  Aurora, Scarborough and Mississauga all sit under the one `gta` key.
+- `PROJECTS` — `{ id (unique number), slug, name, shortName?, category,
+  city (→ CITIES.key), location, address, projectType, description, images,
+  placeholder }`. `shortName` is the petal-label override for names that would
+  otherwise truncate badly (SHN is the only one so far). All 11
+  entries are real completed work (`placeholder: false`). The flag and the
+  "Demo placeholder" badge it drives in the card and modal are still wired, just
+  unused.
 - `CATEGORIES` drives the grid filter UI. `ProjectCategory` is a union;
   `CATEGORY_COLOR` and `CARD_GRADIENT` are `Record<ProjectCategory, …>` so TS
   forces you to add an entry when you add a category.
+
+**Photography.** `images` is never written by hand — it comes from
+`imagesFor(...slugs)`, which reads the generated manifest
+`lib/projectImages.json` (13 slugs, 142 WebP files).
+`scripts/optimize-project-photos.mjs` builds both that manifest and the
+committed derivatives under `public/images/projects/<slug>/` from the client's
+raw drop, which stays untracked like `public/videos/`. Re-run it after adding or
+replacing a photo. One project can span several slugs — Scarborough Health
+Network concatenates `shn-intake`, `shn-walls` and `shn-windows`. The script's
+`HOLD` set parks slugs the client hasn't identified yet (`beer-store`, `tamas`):
+the photos are optimized and on disk, but with no city or address they get no
+`PROJECTS` entry. An entry whose `images` is empty falls back to the
+`CARD_GRADIENT` treatment.
 
 **Map geometry** lives in `components/portfolio-map/PortfolioMap.tsx` as
 `LAND_PATH` and `US_CA_BORDER` string constants. Regenerate with
@@ -195,8 +218,10 @@ it shrinks with the panel. Below `md` the feature adapts in three places, and
 they must stay in step:
 
 - `COMPACT_QUERY` in `PortfolioMap.tsx` (`max-width: 767px`) switches the
-  cluster to `COMPACT_ZOOM_W` (200 vs 320) — a harder zoom, so petals clear a
-  44px tap target instead of rendering ~15px wide. It is read with
+  cluster to `COMPACT_ZOOM_W` (200 vs 320) — a harder zoom, so petals render
+  ~36px across at 320px wide, 43px at 375px and 45px+ from ~385px up, instead
+  of ~15px. Well past the 24px WCAG 2.5.8 floor at every width, and a
+  comfortable 44px on any current phone. It is read with
   `useSyncExternalStore` and used **only inside the zoom effect**, never during
   render, so there is no hydration mismatch — keep it that way.
 - `.map-fine-print` in `globals.css` (same 767px breakpoint) hides the city
@@ -235,16 +260,35 @@ NEXT_PUBLIC_CLOUDFLARE_STREAM_SUBDOMAIN=
 NEXT_PUBLIC_HERO_VIDEO_UID=
 ```
 
+**Hero video.** The hero plays ONE progressive MP4 —
+`https://<subdomain>/<uid>/downloads/default.mp4` — not the adaptive HLS
+manifest, and there is no player library. This is deliberate: with an adaptive
+ladder the opening seconds are only ever buffered at a low rendition (seeking a
+live page back to 0 returned 480p), and because the video autoplayed behind the
+poster, viewers joined the reel ~4.7s in. One rendition means frame one is full
+quality, and a progressive file starts from a short prefix instead of a whole
+4s segment — measured 0.5s/1.4s/3.5s to first frame on full/5Mbps/2Mbps, against
+~8.6s for the old path to reach 1080p. The video therefore does NOT autoplay:
+it buffers paused at 0 and `Hero.tsx` starts it on `loadeddata` (not `canplay` —
+Chrome stops buffering a paused element once it has the first frame, so
+readyState never reaches 3 on a throttled link).
+
+The trade is that nothing adapts: every visitor pulls the same file. The current
+one is 52.3MB / 61.2s (~7.2Mbps), which stutters below about 7Mbps — re-encoding
+smaller and re-uploading is the lever, and only `NEXT_PUBLIC_HERO_VIDEO_UID`
+changes. MP4 downloads must be enabled per video (Stream dashboard → the video →
+Downloads, or the Stream `/downloads` API); without that the URL 404s.
+
 Deployed on Vercel; push to a branch → preview deploy, `main` → production.
-`next.config.ts` handles apex→www and legacy `/about*` redirects, and whitelists
-`images.unsplash.com` + local `/logos` `/images` `/company-logos` for
+`next.config.ts` handles apex→www, legacy `/about*` and retired `/projects`
+redirects, and whitelists local `/logos` `/images` `/company-logos` for
 `next/image`.
 
 **Brand fonts are NOT wired up.** `public/fonts/README.md` claims `@font-face` is
 "already wired up in `globals.css`" — it is not. There are no `@font-face` rules
-and no `--font-display` token, so `.font-display` classes (used in
-`components/projects/*`) silently fall back to DM Sans. Wiring these up is a
-known task, not a bug to be surprised by.
+and no `--font-display` token. Nothing references `.font-display` any more (the
+only two call sites went with `/projects`), so wiring the fonts up now means
+choosing where they should apply, not just adding the rules.
 
 ---
 
@@ -253,35 +297,17 @@ known task, not a bug to be surprised by.
 Backlog of rough edges found by reading the code. Not all verified end-to-end;
 treat as leads, confirm before acting.
 
-1. **`/projects` is orphaned** — in `sitemap.ts` (priority 0.9) but not linked
-   from `Navbar` or `Footer` (nav points to `/portfolio-map`). Uses placeholder
-   Unsplash images. No `/projects/[id]` detail route although cards say
-   "View Project". `FilterBar` has a "Special Projects" category that matches no
-   project.
-2. **`services: Service[]` in `lib/data.ts` is dead code** — the Services page
-   only renders `generalContracting`. (7-item array, one `highlight`.)
-3. **Brand fonts not wired** — see §7.
-4. **`components/contact/MapEmbed.tsx` is unused** — the Contact page inlines its
-   own two Google Maps iframes.
-5. **`ServicesTabs` is misnamed** — it renders a static card grid, not tabs
-   (component is literally `ServicesCards`).
-6. **Favicon resolution** — `app/icon.svg` / `app/favicon.ico` exist, but root
-   `metadata.icons.icon` overrides `<link rel="icon">` to
-   `/company-logos/rose-hill-cropped.svg`, so the app-router icons only serve
-   legacy `/favicon.ico` requests.
-7. **Hardcoded colors** — Testimonials company text and form error text use
-   inline hex (`#CB9E41`, `#b8963e`) instead of tokens. `--color-light-grey` is
-   defined but unused.
-8. **Careers metadata** — description in `careers/layout.tsx` (authoritative)
+1. **Brand fonts not wired** — see §7.
+2. **Careers metadata** — description in `careers/layout.tsx` (authoritative)
    differs from the visible page copy. Minor.
-9. **Logo filter mismatch** — the dev `api/logos-meta` endpoint filters
-   `.png|.svg`; the production SSR `LogoWall` filters `.webp|.svg`. A PNG-only
-   logo shows in dev polling but not in a production build.
-10. **No test suite, no CI** in the repo. No error monitoring / analytics.
-11. **`sameAs: []`** in `JsonLd.tsx` — no social profiles in structured data.
-12. **Careers message field** — server caps `message` at 2000 chars but the
-    Careers `<textarea>` has no client `maxLength` (Contact's textarea is
-    capped client-side; Contact also *requires* `message`, 1–2000).
+3. **No test suite, no CI** in the repo. No error monitoring / analytics.
+4. **`sameAs: []`** in `JsonLd.tsx` — no social profiles in structured data.
+   Needs real profile URLs from the client, or drop the key.
+5. **Conditional UI is unaudited.** The axe pass only sees rendered DOM, so
+   states that need an interaction — form error messages, empty filter results,
+   submitted-form confirmations — have never been contrast-checked. The form
+   error colour turned out to be 2.25:1 for exactly this reason. Worth driving
+   a failed submit before trusting a clean scan.
 
 ---
 

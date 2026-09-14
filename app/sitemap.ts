@@ -10,7 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     {
-      url: `${SITE_URL}/projects`,
+      url: `${SITE_URL}/portfolio-map`,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.9,

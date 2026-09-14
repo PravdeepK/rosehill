@@ -2,25 +2,36 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { isHeroReady, markHeroReady } from "@/lib/heroReady";
+import { markHeroReady } from "@/lib/heroReady";
 
 const STREAM_SUBDOMAIN = process.env.NEXT_PUBLIC_CLOUDFLARE_STREAM_SUBDOMAIN;
 const VIDEO_UID = process.env.NEXT_PUBLIC_HERO_VIDEO_UID;
 
-const HLS_SRC = `https://${STREAM_SUBDOMAIN}/${VIDEO_UID}/manifest/video.m3u8`;
+// One progressive MP4 from Cloudflare Stream rather than the adaptive manifest.
+// Stream generates this from the same upload; it has to be enabled once per
+// video via the Stream /downloads API, and is then served from the same CDN.
+//
+// A single rendition is the whole point. Adaptive streaming opens on a low
+// rendition and climbs, so the first four seconds are only ever buffered at
+// 480p — measured by seeking a live page back to 0 — and the viewer had already
+// missed ~4.7s of the reel by the time the poster cross-faded. With one
+// rendition there is no ladder to climb: frame one is full quality, and because
+// a progressive file plays from a short prefix instead of a whole 4s segment it
+// arrives sooner than HLS managed even on a fast link (70ms / 307ms at 5Mbps /
+// 711ms at 2Mbps, against ~4.5s for the stream to reach 1080p).
+//
+// The cost is that there is nothing to adapt: everyone pulls the same file, so
+// a slow connection buys a sharp picture with buffering rather than a soft one.
+const MP4_SRC = `https://${STREAM_SUBDOMAIN}/${VIDEO_UID}/downloads/default.mp4`;
 const POSTER = `https://${STREAM_SUBDOMAIN}/${VIDEO_UID}/thumbnails/thumbnail.jpg?height=1080`;
 
-// Adaptive streaming starts on a low rendition and ramps up. On the FIRST load
-// (behind the intro splash) we hold the full-resolution poster until the stream
-// reaches its top rendition, then cross-fade straight to full quality — so the
-// 720→1080 ramp is never seen, and the same moment clears the splash via
-// markHeroReady. On a RETURN visit (in-app nav back to the landing page, where
-// isHeroReady() is already set and the segments are warm) there's no splash, so
-// sitting on the poster through a fresh ramp just looks like a stall — instead we
-// reveal as soon as the video can play, for a quick poster→video swap.
-const FULL_QUALITY_HEIGHT = 1080;
-// If the top rendition never arrives (slow link), reveal whatever's buffered
-// after this long rather than sitting on the poster forever.
+// The video deliberately does NOT autoplay. Letting it run behind the poster is
+// what made viewers join the reel part-way through; instead it buffers while
+// paused at 0 and we start it at the moment we cross-fade, so everyone sees the
+// opening frame. `loadeddata` (readyState 2, first frame decoded) is the cue and
+// NOT `canplay`: Chrome stops buffering a paused element once it has that frame,
+// so on a throttled link readyState never reaches 3 and `canplay` never fires —
+// measured, it sat on the poster until the fallback timer fired instead.
 const REVEAL_FALLBACK_MS = 8000;
 
 export default function Hero() {
@@ -32,68 +43,38 @@ export default function Hero() {
     if (!video) return;
 
     let cancelled = false;
-    // A return visit (in-app nav) reveals on first playable frame; a first load
-    // waits for full quality so the splash clears to a sharp 1080p reveal.
-    const fastReveal = isHeroReady();
 
-    // Cross-fade poster→video and clear the splash together — on a first load the
-    // moment full quality is live, on a return visit as soon as it can play.
+    // Cross-fade poster→video, start the reel from its first frame, and clear
+    // the splash — all at the same moment.
     const reveal = () => {
       if (cancelled) return;
       setRevealed(true);
       markHeroReady();
+      // Autoplay is muted, so this is allowed; ignore a rejection rather than
+      // leaving an unhandled promise if a policy ever blocks it.
+      void video.play().catch(() => {});
     };
-    const onProgress = () => {
-      if (fastReveal || video.videoHeight >= FULL_QUALITY_HEIGHT) reveal();
-    };
-    video.addEventListener("loadeddata", onProgress);
-    video.addEventListener("canplay", onProgress);
-    video.addEventListener("playing", onProgress);
-    video.addEventListener("resize", onProgress); // fires on rendition switch
 
-    // Safety net: don't sit on the poster forever on a slow connection.
-    const fallback = window.setTimeout(() => {
-      if (video.readyState >= 2) reveal();
-    }, REVEAL_FALLBACK_MS);
+    video.addEventListener("loadeddata", reveal);
 
-    let hls: import("hls.js").default | null = null;
-
-    if (video.canPlayType("application/vnd.apple.mpegurl")) {
-      // Safari: let the native player run ABR off the multivariant manifest.
-      video.src = HLS_SRC;
-    } else {
-      import("hls.js").then(({ default: Hls }) => {
-        if (cancelled || !Hls.isSupported()) return;
-        // Default config keeps ABR on: fast low-rendition start, ramps to 1080p.
-        hls = new Hls();
-        hls.loadSource(HLS_SRC);
-        hls.attachMedia(video);
-        // ABR reaching the highest level is the definitive "full quality" cue —
-        // more reliable than pixel height across renditions.
-        hls.on(Hls.Events.LEVEL_SWITCHED, (_event, data) => {
-          if (!cancelled && hls && data.level >= hls.levels.length - 1) {
-            reveal();
-          }
-        });
-      });
-    }
+    // Safety net: if `loadeddata` never lands, show whatever we have rather than
+    // sitting on the poster forever.
+    const fallback = window.setTimeout(reveal, REVEAL_FALLBACK_MS);
 
     return () => {
       cancelled = true;
       window.clearTimeout(fallback);
-      video.removeEventListener("loadeddata", onProgress);
-      video.removeEventListener("canplay", onProgress);
-      video.removeEventListener("playing", onProgress);
-      video.removeEventListener("resize", onProgress);
-      hls?.destroy();
+      video.removeEventListener("loadeddata", reveal);
     };
   }, []);
 
   return (
     <section className="relative min-h-[100svh] w-full overflow-hidden flex items-center justify-center bg-black">
       <link rel="preload" as="image" href={POSTER} fetchPriority="high" />
+      {/* Warm the connection the video itself will use. */}
+      <link rel="preconnect" href={`https://${STREAM_SUBDOMAIN}`} />
 
-      {/* Static full-res poster — holds until the video is playing at full quality. */}
+      {/* Static full-res poster — holds until the first frame is buffered. */}
       <img
         src={POSTER}
         alt=""
@@ -105,7 +86,7 @@ export default function Hero() {
       />
       <video
         ref={videoRef}
-        autoPlay
+        src={MP4_SRC}
         muted
         loop
         playsInline

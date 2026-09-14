@@ -1,6 +1,6 @@
 import SectionLabel from "@/components/ui/SectionLabel";
 import Reveal from "@/components/ui/Reveal";
-import ServicesTabs from "@/components/services/ServicesTabs";
+import ServicesCards from "@/components/services/ServicesCards";
 import { generalContracting } from "@/lib/data";
 
 export const metadata = {
@@ -33,7 +33,7 @@ export default function ServicesPage() {
             <SectionLabel>Our Capabilities</SectionLabel>
             <div className="h-px flex-1 bg-medium-grey/25" />
           </div>
-          <ServicesTabs categories={generalContracting.categories} />
+          <ServicesCards categories={generalContracting.categories} />
         </Reveal>
 
       </div>

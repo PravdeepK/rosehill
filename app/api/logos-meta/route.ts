@@ -20,9 +20,11 @@ export async function GET() {
 
   const names = fs
     .readdirSync(dir)
+    // Must match LogoWall's filter exactly, or a logo shows up while polling in
+    // dev and then vanishes from the production build.
     .filter(
       (f) =>
-        /\.(png|svg)$/i.test(f) &&
+        /\.(webp|svg)$/i.test(f) &&
         !f.startsWith(".") &&
         !f.startsWith(".__")
     )

@@ -52,8 +52,10 @@ Rules:
 - `city` must match an existing `CITIES[].key` exactly.
 - `category` must be one of `CATEGORIES` / the `ProjectCategory` union.
 - Petals auto-distribute around the hub — no layout math needed. But petal
-  hover labels **truncate at 12 characters**; keep `name` short or accept the
-  ellipsis.
+  hover labels **truncate at 16 characters** (`PETAL_LABEL_MAX`). If `name` is
+  longer and the truncation reads badly, add an optional `shortName` — the
+  petal label prefers it, everything else still shows `name`. Scarborough
+  Health Network uses `shortName: "SHN"`.
 - Real Rose Hill projects → `placeholder: false`. Invented/demo → `placeholder: true`.
 
 No other file needs to change. `projectCount()` and all grid/map filters derive
