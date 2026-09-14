@@ -76,7 +76,7 @@ export function PortfolioMapExperience() {
           </Reveal>
 
           <div className="mt-9">
-            <div className="relative border border-[#d9d6cd] bg-warm-white p-2">
+            <div className="relative border border-hairline bg-warm-white p-2">
               <PortfolioMap
                 activeCity={activeCity}
                 onSelectCity={setActiveCity}

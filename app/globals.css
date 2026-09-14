@@ -7,6 +7,11 @@
   --color-gold-contrast: #5a4620;
   --color-warm-white: #f5f4f0;
   --color-warm-grey: #e8e6e1;
+  /* Decorative hairline for panels that sit on a warm-grey section: one step
+     darker than warm-grey, which would otherwise vanish against it. Frames
+     only — the panel itself is identified by its warm-white fill, so this is
+     not load-bearing contrast. */
+  --color-hairline: #d9d6cd;
   --color-dark: #393A3B;
   /* Form error text. Deep burnt sienna rather than a generic red so it still
      sits in the warm palette. The inline #b8963e it replaces was 2.25:1 on
