@@ -144,6 +144,49 @@ body {
   animation: map-modal-panel-in 0.28s cubic-bezier(0.2, 0.7, 0.3, 1) both;
 }
 
+/* City marker hover/focus. A gold ring blooms out of the diamond while the
+   diamond itself lifts a little — enough to read as "this is the thing under
+   your cursor" without competing with the pulse a selected city gets.
+
+   transform + opacity only, so it stays on the compositor: no layout, no
+   repaint of the landmass underneath. The `:hover` half is gated behind
+   `(hover: hover)` because touch browsers emulate hover on tap and would
+   strand the ring open on the last city tapped; `:focus-visible` is the
+   keyboard equivalent and stays on every device. */
+.map-city-halo,
+.map-city-diamond {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition:
+    transform 0.22s cubic-bezier(0.2, 0.7, 0.3, 1),
+    opacity 0.2s ease;
+}
+
+.map-city-halo {
+  opacity: 0;
+  transform: scale(0.5);
+}
+
+.map-city:focus-visible .map-city-halo {
+  opacity: 0.7;
+  transform: scale(1);
+}
+
+.map-city:focus-visible .map-city-diamond {
+  transform: scale(1.18);
+}
+
+@media (hover: hover) {
+  .map-city:hover .map-city-halo {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+
+  .map-city:hover .map-city-diamond {
+    transform: scale(1.18);
+  }
+}
+
 /* Held on the <svg> only while the rAF viewBox tween is running.
 
    Animating `viewBox` rescales the whole map every frame, so nothing the
@@ -215,6 +258,16 @@ body {
   .map-modal-backdrop,
   .map-modal-panel {
     animation: none;
+  }
+
+  /* The ring still marks the hovered city, it just arrives without the bloom. */
+  .map-city-halo,
+  .map-city-diamond {
+    transition: none;
+  }
+
+  .map-city-halo {
+    transform: scale(1);
   }
 }
 

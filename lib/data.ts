@@ -4,12 +4,6 @@ export interface Testimonial {
   company: string;
 }
 
-export interface Service {
-  name: string;
-  description: string;
-  highlight?: boolean;
-}
-
 export interface ServiceCategory {
   name: string;
   items: string[];
@@ -39,45 +33,6 @@ export const testimonials: Testimonial[] = [
       "I've worked with a lot of contractors over the years and Rose Hill stands apart. They understood the demands of our project right away and kept things moving without ever cutting corners. The finished space speaks for itself.",
     name: "Billy Alexopoulos",
     company: "ProPhase Ltd.",
-  },
-];
-
-export const services: Service[] = [
-  {
-    name: "Branding & Design Activation",
-    description:
-      "Transforming luxury retail spaces with bespoke design solutions that elevate brand presence and customer experience.",
-    highlight: true,
-  },
-  {
-    name: "Pre-Construction",
-    description:
-      "Comprehensive planning and feasibility analysis to ensure your project starts on the right foundation.",
-  },
-  {
-    name: "Design Implementation",
-    description:
-      "Bringing architectural visions to life with precision craftsmanship and meticulous project management.",
-  },
-  {
-    name: "Building Activation",
-    description:
-      "Seamless transition from construction to operational spaces, ensuring every detail is move-in ready.",
-  },
-  {
-    name: "Commercial Building",
-    description:
-      "Full-service commercial construction for offices, medical facilities, and professional spaces.",
-  },
-  {
-    name: "Residential Building",
-    description:
-      "High-end residential construction and renovation for discerning homeowners.",
-  },
-  {
-    name: "Special Project Capabilities",
-    description:
-      "Unique and complex builds that require specialized expertise and creative problem-solving.",
   },
 ];
 

@@ -588,7 +588,7 @@ function DefaultMarker({
       role="button"
       tabIndex={0}
       aria-label={`View projects in ${city.name} (${count})`}
-      className="map-node focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-2"
+      className="map-node map-city focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-2"
       style={{ cursor: "pointer" }}
       onClick={(e) => {
         e.stopPropagation();
@@ -600,6 +600,19 @@ function DefaultMarker({
           target, but below `md` the chip is hidden and this is all that's
           left of it, so it carries the touch sizing on its own */}
       <circle r={CITY_HIT_R} fill="transparent" />
+
+      {/* hover/focus ring — hidden until `.map-city` is hovered or keyboard
+          focused (see `.map-city-halo` in globals.css). Decorative, and the
+          hit circle above already covers it, so it stays out of pointer
+          handling. */}
+      <circle
+        className="map-city-halo"
+        r="11"
+        fill="none"
+        stroke="var(--color-gold)"
+        strokeWidth="1.25"
+        pointerEvents="none"
+      />
 
       <g className="map-fine-print">
         <line
@@ -635,6 +648,7 @@ function DefaultMarker({
 
       {/* gold diamond */}
       <path
+        className="map-city-diamond"
         d="M0,-6 L6,0 L0,6 L-6,0 Z"
         fill="var(--color-gold)"
         stroke="var(--color-warm-white)"

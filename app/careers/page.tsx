@@ -243,6 +243,7 @@ export default function CareersPage() {
                 id="message"
                 name="message"
                 rows={4}
+                maxLength={2000}
                 className={`${inputClasses} resize-none`}
               />
             </div>
