@@ -29,6 +29,10 @@ npm run lint             # eslint (next/core-web-vitals + next/typescript)
 npm run optimize-images  # scripts/optimize-images.mjs (sharp)
 npm run gen-favicon      # scripts/gen-favicon.mjs
 npm run gen-og           # scripts/gen-og-image.mjs
+
+# No npm alias — run directly, and only when their inputs change:
+node scripts/optimize-project-photos.mjs   # raw photo drop → public/images + manifest (§6)
+node scripts/gen-portfolio-map-path.mjs    # regenerate map geometry (§6)
 ```
 
 There is **no test suite and no CI**. "Working" means: `npm run lint` clean,
@@ -170,13 +174,34 @@ touch/keyboard path (the SVG interactions are progressive enhancement).
 runtime — the landmass is a static projected SVG path.
 
 - `CITIES` — `{ key, name, shortLabel, x, y, labelDir }`. `x`/`y` are in the
-  `780×450` map viewBox (NOT lat/lon).
-- `PROJECTS` — `{ id (unique number), name, category, city (→ CITIES.key),
-  location, description, placeholder (boolean, required) }`. Toronto entries are
-  real; Boston/Miami are `placeholder: true` demo content.
+  `780×450` map viewBox (NOT lat/lon), projected by
+  `scripts/gen-portfolio-map-path.mjs` rather than placed by hand. Six today:
+  `gta`, `calgary`, `poconos`, `sevierville`, `austin`, `miami`. Every GTA
+  address projects to within ~2px of the same point, so Toronto, Yorkville,
+  Aurora, Scarborough and Mississauga all sit under the one `gta` key.
+- `PROJECTS` — `{ id (unique number), slug, name, shortName?, category,
+  city (→ CITIES.key), location, address, projectType, description, images,
+  placeholder }`. `shortName` is the petal-label override for names that would
+  otherwise truncate badly (SHN is the only one so far). All 11
+  entries are real completed work (`placeholder: false`). The flag and the
+  "Demo placeholder" badge it drives in the card and modal are still wired, just
+  unused.
 - `CATEGORIES` drives the grid filter UI. `ProjectCategory` is a union;
   `CATEGORY_COLOR` and `CARD_GRADIENT` are `Record<ProjectCategory, …>` so TS
   forces you to add an entry when you add a category.
+
+**Photography.** `images` is never written by hand — it comes from
+`imagesFor(...slugs)`, which reads the generated manifest
+`lib/projectImages.json` (13 slugs, 142 WebP files).
+`scripts/optimize-project-photos.mjs` builds both that manifest and the
+committed derivatives under `public/images/projects/<slug>/` from the client's
+raw drop, which stays untracked like `public/videos/`. Re-run it after adding or
+replacing a photo. One project can span several slugs — Scarborough Health
+Network concatenates `shn-intake`, `shn-walls` and `shn-windows`. The script's
+`HOLD` set parks slugs the client hasn't identified yet (`beer-store`, `tamas`):
+the photos are optimized and on disk, but with no city or address they get no
+`PROJECTS` entry. An entry whose `images` is empty falls back to the
+`CARD_GRADIENT` treatment.
 
 **Map geometry** lives in `components/portfolio-map/PortfolioMap.tsx` as
 `LAND_PATH` and `US_CA_BORDER` string constants. Regenerate with
@@ -192,8 +217,10 @@ it shrinks with the panel. Below `md` the feature adapts in three places, and
 they must stay in step:
 
 - `COMPACT_QUERY` in `PortfolioMap.tsx` (`max-width: 767px`) switches the
-  cluster to `COMPACT_ZOOM_W` (200 vs 320) — a harder zoom, so petals clear a
-  44px tap target instead of rendering ~15px wide. It is read with
+  cluster to `COMPACT_ZOOM_W` (200 vs 320) — a harder zoom, so petals render
+  ~36px across at 320px wide, 43px at 375px and 45px+ from ~385px up, instead
+  of ~15px. Well past the 24px WCAG 2.5.8 floor at every width, and a
+  comfortable 44px on any current phone. It is read with
   `useSyncExternalStore` and used **only inside the zoom effect**, never during
   render, so there is no hydration mismatch — keep it that way.
 - `.map-fine-print` in `globals.css` (same 767px breakpoint) hides the city

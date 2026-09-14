@@ -44,6 +44,9 @@ export interface PortfolioProject {
   id: number;
   slug: string; // matches the public/images/projects/<slug>/ folder
   name: string;
+  // Petal hover label override. Set it when `name` would otherwise truncate at
+  // PETAL_LABEL_MAX into something unreadable; everywhere else uses `name`.
+  shortName?: string;
   category: ProjectCategory;
   city: string; // PortfolioCity.key
   location: string; // short display line under the project name
@@ -149,6 +152,7 @@ export const PROJECTS: PortfolioProject[] = [
     id: 10,
     slug: "shn",
     name: "Scarborough Health Network",
+    shortName: "SHN",
     category: "Special Project",
     city: "gta",
     location: "3050 Lawrence Ave E, Scarborough",

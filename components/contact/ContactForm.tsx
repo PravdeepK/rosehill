@@ -112,7 +112,7 @@ export default function ContactForm() {
             className="block text-xs uppercase tracking-widest text-medium-grey mb-2"
           >
             Phone{" "}
-            <span className="normal-case tracking-normal text-medium-grey/70">
+            <span className="normal-case tracking-normal text-medium-grey">
               (optional)
             </span>
           </label>

@@ -99,9 +99,13 @@ export default function Navbar() {
                 // No prefetch: hovering otherwise fires a route fetch + JS
                 // eval on the main thread, which hitches the hero video.
                 prefetch={false}
+                // Active over the light bar uses gold-contrast: plain gold is
+                // only ~2.2:1 on warm-white. Over the dark hero, gold is fine.
                 className={`text-sm uppercase tracking-widest transition-colors hover:text-gold focus-visible:text-gold focus-visible:outline-none ${
                   active
-                    ? "text-gold"
+                    ? isTransparent
+                      ? "text-gold"
+                      : "text-gold-contrast"
                     : isTransparent
                       ? "text-white/90"
                       : "text-dark"
@@ -153,8 +157,12 @@ export default function Navbar() {
                 key={link.href}
                 href={link.href}
                 prefetch={false}
+                // The collapsed panel is aria-hidden but still in the layout, so
+                // its links stay tabbable without this — focus would land on a
+                // control screen readers can't see.
+                tabIndex={mobileOpen ? undefined : -1}
                 className={`py-4 text-sm uppercase tracking-widest hover:text-gold transition-colors ${
-                  active ? "text-gold" : "text-dark"
+                  active ? "text-gold-contrast" : "text-dark"
                 }`}
                 onClick={() => setMobileOpen(false)}
               >

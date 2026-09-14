@@ -259,7 +259,9 @@ function CityPill({
       <span aria-hidden="true">
         <span className="sm:hidden">{shortLabel}</span>
         <span className="hidden sm:inline">{label}</span>{" "}
-        <span className="opacity-60">&middot; {count}</span>
+        {/* No opacity here: 12px type at 60% fell to ~2.5:1 on warm-white.
+            The middot already separates the count from the name. */}
+        <span>&middot; {count}</span>
       </span>
     </button>
   );

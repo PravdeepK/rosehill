@@ -465,7 +465,9 @@ export function PortfolioMap({
                 const { lx, ly, anchor } = petalGeom[i];
                 return (
                   <PetalLabel
-                    label={truncate(cityProjects[i].name)}
+                    label={truncate(
+                      cityProjects[i].shortName ?? cityProjects[i].name,
+                    )}
                     lx={lx}
                     ly={ly}
                     anchor={anchor}
