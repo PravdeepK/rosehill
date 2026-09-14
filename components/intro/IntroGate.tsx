@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { HERO_READY_EVENT, isHeroReady } from "@/lib/heroReady";
 
-const MIN_MS = 1400; // keep the logo on screen at least this long
+const MIN_MS = 400; // keep the logo on screen at least this long
 const MAX_MS = 8000; // …but never hang: reveal even if 1080p isn't reached yet
 const EXIT_MS = 700; // overlay cross-fade duration (matches globals.css)
 const TRICKLE_TO = 90; // loading bar eases to this %, then snaps to 100 on ready

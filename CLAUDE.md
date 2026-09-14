@@ -54,7 +54,7 @@ checking the build still passes.
 | Fonts | `next/font/google` DM Sans → `--font-dm-sans` / `font-sans` |
 | Email | Resend (`resend`) |
 | Rate limiting | `@upstash/ratelimit` + `@upstash/redis` (env-configured) |
-| Video | `hls.js` for the homepage hero (Cloudflare Stream) |
+| Video | Cloudflare Stream, served as a single progressive MP4 (no player lib) |
 | Animation | **No framer-motion.** CSS keyframes in `globals.css` + a small IntersectionObserver `Reveal` component |
 | Hosting | Vercel |
 
@@ -83,7 +83,7 @@ app/
 components/
   layout/    Navbar, Footer
   home/      Hero, Advantage, LogoWall (+Client), Testimonials, CallToAction
-  intro/     IntroGate (splash held until hero video is sharp; see lib/heroReady.ts)
+  intro/     IntroGate (splash held until the hero's first frame; see lib/heroReady.ts)
   portfolio-map/   PortfolioMapExperience, PortfolioMap, ProjectModal,
                    PortfolioProjectCard, helpers.ts   (see §6)
   services/  ServicesCards  (static card grid for lib/data.ts `generalContracting`)
@@ -95,7 +95,7 @@ lib/
   site.ts            SITE_URL, SITE_NAME, PAGE_TITLE_TAGLINE, SITE_DESCRIPTION
   data.ts            testimonials[], services[], generalContracting
   portfolioMapData.ts  Self-contained data + types for /portfolio-map (see §6)
-  heroReady.ts       Cross-component signal: hero video ready → intro splash clears
+  heroReady.ts       Cross-component signal: hero first frame → intro splash clears
 
 scripts/    Node/Python one-offs (image opt, favicon, OG image, logo cleanup,
             gen-portfolio-map-path.mjs). Python scripts use ./.venv.
@@ -259,6 +259,25 @@ UPSTASH_REDIS_REST_TOKEN=
 NEXT_PUBLIC_CLOUDFLARE_STREAM_SUBDOMAIN=
 NEXT_PUBLIC_HERO_VIDEO_UID=
 ```
+
+**Hero video.** The hero plays ONE progressive MP4 —
+`https://<subdomain>/<uid>/downloads/default.mp4` — not the adaptive HLS
+manifest, and there is no player library. This is deliberate: with an adaptive
+ladder the opening seconds are only ever buffered at a low rendition (seeking a
+live page back to 0 returned 480p), and because the video autoplayed behind the
+poster, viewers joined the reel ~4.7s in. One rendition means frame one is full
+quality, and a progressive file starts from a short prefix instead of a whole
+4s segment — measured 0.5s/1.4s/3.5s to first frame on full/5Mbps/2Mbps, against
+~8.6s for the old path to reach 1080p. The video therefore does NOT autoplay:
+it buffers paused at 0 and `Hero.tsx` starts it on `loadeddata` (not `canplay` —
+Chrome stops buffering a paused element once it has the first frame, so
+readyState never reaches 3 on a throttled link).
+
+The trade is that nothing adapts: every visitor pulls the same file. The current
+one is 52.3MB / 61.2s (~7.2Mbps), which stutters below about 7Mbps — re-encoding
+smaller and re-uploading is the lever, and only `NEXT_PUBLIC_HERO_VIDEO_UID`
+changes. MP4 downloads must be enabled per video (Stream dashboard → the video →
+Downloads, or the Stream `/downloads` API); without that the URL 404s.
 
 Deployed on Vercel; push to a branch → preview deploy, `main` → production.
 `next.config.ts` handles apex→www, legacy `/about*` and retired `/projects`
