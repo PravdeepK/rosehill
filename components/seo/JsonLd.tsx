@@ -30,7 +30,10 @@ const ORG_SCHEMA = {
       addressCountry: "US",
     },
   ],
-  sameAs: [],
+  sameAs: [
+    "https://www.linkedin.com/company/rose-hill-design-build/",
+    "https://www.facebook.com/RoseHillDesignBuild/",
+  ],
 };
 
 export default function JsonLd() {
