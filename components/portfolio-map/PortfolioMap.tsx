@@ -217,6 +217,10 @@ export function PortfolioMap({
       onClick={zoomedOut}
     >
       <defs>
+        {/* The hex values below are deliberate one-offs, not missed tokens:
+            a gradient ramp, a sheen, a grid stroke and a shadow that make up
+            the landmass illustration. They aren't themed UI surfaces, so
+            there's nothing for a semantic token to mean here. */}
         <linearGradient id="pm-land-gradient" x1="0.1" y1="0" x2="0.7" y2="1">
           <stop offset="0%" stopColor="#403c39" />
           <stop offset="55%" stopColor="#3b3937" />
