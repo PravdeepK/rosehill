@@ -28,14 +28,16 @@ interface ProjectModalProps {
  *
  * Projects with photography get a one-at-a-time carousel — prev/next arrows,
  * a position counter, left/right arrow keys and a horizontal swipe, wrapping
- * at both ends. Those still awaiting it (`images: []`) keep the
- * gradient-and-initials treatment.
+ * at both ends, plus a thumbnail strip below it for jumping straight to a shot.
+ * Those still awaiting it (`images: []`) keep the gradient-and-initials
+ * treatment.
  */
 export function ProjectModal({ project, onClose }: ProjectModalProps) {
   const panelRef = useRef<HTMLDivElement | null>(null);
   const closeRef = useRef<HTMLButtonElement | null>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
   const swipeRef = useRef<{ x: number; y: number } | null>(null);
+  const stripRef = useRef<HTMLDivElement | null>(null);
   const nameId = useId();
 
   // Reset the gallery when a different project opens — adjusted during render
@@ -46,6 +48,23 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
     setLastProjectId(project.id);
     setActiveIndex(0);
   }
+
+  // Stepping with the arrows, the keyboard or a swipe has to drag the strip
+  // along with it, or the active thumbnail ends up off-screen. Scrolling a node
+  // is a genuine side effect, unlike the derived state adjusted during render.
+  useEffect(() => {
+    const thumb = stripRef.current?.querySelector<HTMLElement>(
+      '[data-active="true"]',
+    );
+    if (!thumb) return;
+    thumb.scrollIntoView({
+      block: "nearest",
+      inline: "center",
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
+    });
+  }, [activeIndex, project]);
 
   useEffect(() => {
     if (!project) return;
@@ -223,6 +242,40 @@ export function ProjectModal({ project, onClose }: ProjectModalProps) {
             </>
           )}
         </div>
+
+        {count > 1 && (
+          <div
+            ref={stripRef}
+            className="scrollbar-none flex shrink-0 gap-2 overflow-x-auto border-t border-hairline p-3"
+          >
+            {project.images.map((img, i) => (
+              <button
+                key={img.src}
+                type="button"
+                data-active={i === activeIndex}
+                onClick={() => setActiveIndex(i)}
+                aria-label={`Show photo ${i + 1} of ${count}`}
+                aria-current={i === activeIndex}
+                // Transparent border on the inactive ones so selecting a
+                // thumbnail recolours it rather than reflowing the strip.
+                className={`relative h-12 w-20 shrink-0 cursor-pointer overflow-hidden border-2 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-2 ${
+                  i === activeIndex
+                    ? "border-gold"
+                    : "border-transparent opacity-60 hover:opacity-100"
+                }`}
+              >
+                <Image
+                  src={img.src}
+                  alt=""
+                  aria-hidden="true"
+                  fill
+                  sizes="80px"
+                  className="object-cover"
+                />
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className="p-7 md:p-8">
           <span className="block text-[10px] uppercase tracking-[0.18em] text-gold-contrast">
