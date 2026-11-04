@@ -3,7 +3,11 @@ import { Resend } from "resend";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let resend: Resend | null = null;
+function getResend() {
+  if (!resend) resend = new Resend(process.env.RESEND_API_KEY);
+  return resend;
+}
 
 const ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
@@ -71,7 +75,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const { data, error } = await resend.emails.send({
+  const { data, error } = await getResend().emails.send({
     from: "Rose Hill <noreply@rosehilldesignbuild.com>",
     to: "adam@rosehilldesignbuild.com",
     replyTo: email,
